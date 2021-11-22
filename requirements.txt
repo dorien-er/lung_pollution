@@ -5,14 +5,14 @@ twine
 wheel>=0.29
 
 # data science
-import numpy as np
-import pandas as pd
-import scikit-learn as sklearn
-import matplotlib.pyplot as plt
-import seaborn as sns
-import math as mt
-import statsmodels.api as sm
-import pmdarima as pm
+numpy
+pandas
+scikit-learn
+matplotlib.pyplot
+seaborn
+
+
+
 
 
 
