@@ -11,6 +11,8 @@ scikit-learn
 matplotlib
 seaborn
 statsmodels
+chardet
+
 
 
 
