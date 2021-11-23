@@ -8,10 +8,12 @@ wheel>=0.29
 numpy
 pandas
 scikit-learn
-matplotlib
-seaborn
 statsmodels
 
+#visualization
+dash
+matplotlib
+seaborn
 
 
 
