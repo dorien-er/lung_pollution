@@ -1,0 +1,36 @@
+# README file for the APExpose_DE dataset
+24 February 2021
+
+In this dataset we present metrics related to the exposure to air pollution in Germany for the decade 2010-2019.
+
+The sources used for the production of the dataset were Airbase, from the European Environmental Agency (https://www.eea.europa.eu/themes/air/explore-air-pollution-data)
+and the CAMS (Copernicus Atmosphere Monitoring Service) global reanalysis EAC4 (https://www.ecmwf.int/en/forecasts/dataset/cams-global-reanalysis). Stations of the types "Traffic" and "Industrial" were left out for being considered unrepresentative to long-term exposure, those of the type "Background" were included. Each station was geo-located within, and each computed yearly value associated to, a NUTS-3 unit. Within each NUTS-3 (Nomenclature of Territorial Units for Statistics) unit and for each metric, the yearly values per station were averaged in three ways, giving preference to different station sitings, each representing a different scenario: average, urban, remote.
+
+The monitoring data were produced for the NUTS-3 units and the years where monitoring data for a given pollutant is available. In order to complete the dataset for the NUTS-3 units where no monitoring data for a given pollutant is available, the Copernicus Atmospheric Monitoring Service (CAMS) EAC4 reanalysis (https://www.ecmwf.int/en/forecasts/dataset/cams-global-reanalysis) was used. The yearly-averaged rasters from CAMS were vectorized and scaled to available monitoring data to obtain values for each NUTS-3 units.
+
+As a final step, the Airbase and CAMS derived data were combined to produce the APExpose_DE dataset.
+
+The following metrics were calculated for each year and for each NUTS-3 level in Germany:
+
+- NO2 annual mean concentration (micrograms per cubic meter)
+- number of hours of the year which have a NO2 concentration over 200 micrograms per cubic meter
+- NO annual mean concentration (micrograms per cubic meter)
+- PM10 annual mean concentration (micrograms per cubic meter)
+- number of days of the year which have a daily average PM10 concentration over 50 micrograms per cubic meter
+- PM2.5 annual mean concentration (micrograms per cubic meter)
+- O3 annual mean concentration (micrograms per cubic meter)
+- number of days of the year which have a daily average O3 concentration over 120 micrograms per cubic meter
+- annual mean of the daily O3 maximum concentration (micrograms per cubic meter)
+- maximum daily 1-h average O3 concentration over the entire year (micrograms per cubic meter)
+- maximum daily 8-h average O3 concentration over the entire year (micrograms per cubic meter)
+
+The APExpose_DE dataset is available in the form of an ASCII file.
+Each record (each line in the file) corresponds to a NUTS-3 unit and a scenario, for a given year. Each NUTS-3 unit is identified by its name, its ISO code, its german code (Kreisschlüssel) and the longitude and latitude of its centroid.
+There are 402 NUTS-3 units in Germany and 3 scenarios were developed, the total number of records in the dataset is 1206 per year, or 12060 for the entire study period.
+Each record includes a numeric value for each metric considered.
+The ASCII format of the provided dataset enables a simple access and workup.
+The NUTS-3 code, provided for each record, enables linking the dataset to other, possibly vectorized, datasets at the NUTS-3 or coarser level.
+
+Two metadata files are available:
+APExpose_DE__2010-2019__Ratified.csv: lists the whether the measurment data (from Airbase) used to compute a given metric (per scenario, year and NUTS-3) was ratified (Airbase-v8 or Airbase-E1a) or unratified (Airbase-E2a) data.
+APExpose_DE__2010-2019__StationTypes.csv: lists the types of stations used to compute a given metric (per scenario, year and NUTS-3) in the case where Airbase data was used. If CAMS data was used, the value is CAMS.
