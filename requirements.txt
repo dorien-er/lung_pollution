@@ -13,12 +13,17 @@ seaborn
 statsmodels
 chardet
 
+# Code analysis for Python
+pylint
 
+# Debugging
+ipdb
 
+# Notebbok frameworks
+jupyterlab
 
-
-
-
+# Package generator
+packgenlite @ git+https://github.com/krokrob/packgenlite.git@master
 
 # tests/linter
 black
