@@ -16,7 +16,6 @@ dash
 json
 requests
 
-
 # Code analysis for Python
 pylint
 
@@ -47,3 +46,9 @@ six>=1.14
 joblib
 memoized-property
 termcolor
+
+#plot
+plotly
+
+#url
+urllib
