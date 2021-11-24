@@ -13,7 +13,7 @@ seaborn
 statsmodels
 chardet
 dash
-json
+#json
 requests
 
 # Code analysis for Python
