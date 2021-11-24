@@ -51,4 +51,5 @@ termcolor
 plotly
 
 #url
-urllib
+urllib3
+
