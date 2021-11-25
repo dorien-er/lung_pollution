@@ -8,13 +8,22 @@ wheel>=0.29
 numpy
 pandas
 scikit-learn
-matplotlib
-seaborn
 statsmodels
 chardet
-dash
+urllib3
 #json
 requests
+
+# viz
+matplotlib
+seaborn
+dash
+dash_bootstrap_components
+dash_html_components
+dash_core_components
+#plotly.graph_objects   
+#plotly.express 
+
 
 # Code analysis for Python
 pylint
