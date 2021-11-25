@@ -70,4 +70,4 @@ if __name__ == '__main__':
     viz.load_data()
     #print(data)
     app = viz.fig_map()
-    app.run_server(host='127.0.0.1', port=8070, debug=True, use_reloader=False)
+    app.run_server(host='0.0.0.0', port=8070, debug=True, use_reloader=False)
