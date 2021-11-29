@@ -23,3 +23,9 @@ __pycache__/
 
 # key
 #data/key/*
+
+.vscode
+
+notebooks
+raw_data
+Dockerfile
