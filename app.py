@@ -11,130 +11,402 @@ import plotly.express as px
 import numpy as np
 from urllib.request import urlopen
 from dash.dependencies import Output, Input
-
-############################ LOAD CSV & JSON ##################################
+from memoized_property import memoized_property
+from flask_caching import Cache
+import os
+import base64
 
 df = pd.read_csv("./lung_pollution/data/covid_pollution_final-rifqi.csv")
-#df['id'] = df['id'].astype('string')
 
 with urlopen(
         'https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/1_sehr_hoch.geo.json'
 ) as response:
     counties = json.load(response)
 
-# with open("./lung_pollution/data/1_sehr_hoch.geo.json") as response:
-#     counties = json.load(response)
-
-############################# MAPS ############################################
-
-fig_cases = px.choropleth_mapbox(df,
-                                 geojson=counties,
-                                 locations='county_new',
-                                 featureidkey="properties.NAME_3",
-                                 color='cases_per_100k',
-                                 color_continuous_scale="amp",
-                                 range_color=(0, np.max(df["cases_per_100k"])),
-                                 animation_frame='year',
-                                 mapbox_style="carto-positron",
-                                 zoom=3.5,
-                                 center={
-                                     "lat": 51.312801,
-                                     "lon": 9.481544
-                                 },
-                                 opacity=0.5,
-                                 labels={'cases_per_100k': 'cases per 100k'})
-fig_cases.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-
-fig_deaths = px.choropleth_mapbox(
-    df,
-    geojson=counties,
-    locations='county_new',
-    featureidkey="properties.NAME_3",
-    color='deaths_per_100k',
-    color_continuous_scale='greys',
-    #reversescale=True,    # CHECK IT FOR PX
-    range_color=(0, np.max(df["deaths_per_100k"])),
-    animation_frame='year',
-    mapbox_style="carto-positron",
-    zoom=3.5,
-    center={
-        "lat": 51.312801,
-        "lon": 9.481544
-    },
-    opacity=0.5,
-    labels={'deaths_per_100k': 'deaths per 100k'})
-fig_deaths.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
-
 ###############################################################################
 
-app = dash.Dash(__name__,
-                external_stylesheets=[dbc.themes.LUX],
-                meta_tags=[{
-                    'name': 'viewport',
-                    'content': 'width=device-width, initial-scale=1.0'
-                }])
+app = dash.Dash(
+    __name__,
+    external_stylesheets=[dbc.themes.LUX],
+    #prevent_initial_callbacks=True,
+    meta_tags=[{
+        'name': 'viewport',
+        'content': 'width=device-width, initial-scale=1.0'
+    }])
+
+# cache = Cache(app.server,
+#               config={
+#                   'CACHE_TYPE': 'filesystem',
+#                   'CACHE_DIR': 'cache-directory'
+#               })
+
+# TIMEOUT = 60'
+
 server = app.server
 
 app.config.suppress_callback_exceptions = True
 
-############################## LAYOUT SETTINGS ################################
+############################# MAPS ############################################
+#@cache.memoize(timeout=TIMEOUT)
+# def make_map_cases(dfObj):
+#     fig_cases = px.choropleth_mapbox(dfObj,
+#                                     geojson=counties,
+#                                     locations='county_new',
+#                                     featureidkey="properties.NAME_3",
+#                                     color='cases_per_100k',
+#                                     color_continuous_scale="Emrld",
+#                                     range_color=(0, np.max(dfObj["cases_per_100k"])),
+#                                     animation_frame='year',
+#                                     mapbox_style="carto-positron",
+#                                     zoom=3.5,
+#                                     center={
+#                                         "lat": 51.312801,
+#                                         "lon": 9.481544
+#                                     },
+#                                     opacity=0.5,
+#                                     labels={'cases_per_100k': 'cases per 100k'})
+#     fig_cases.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+#     return fig_cases
 
-app.layout = dbc.Container(
+#@cache.memoize(timeout=TIMEOUT)
+# def make_map_deaths(dfObj):
+#     fig_deaths = px.choropleth_mapbox(
+#         dfObj,
+#         geojson=counties,
+#         locations='county_new',
+#         featureidkey="properties.NAME_3",
+#         color='deaths_per_100k',
+#         color_continuous_scale='greys',
+#         range_color=(0, np.max(dfObj["deaths_per_100k"])),
+#         animation_frame='year',
+#         mapbox_style="carto-positron",
+#         zoom=3.5,
+#         center={
+#             "lat": 51.312801,
+#             "lon": 9.481544
+#         },
+#         opacity=0.5,
+#         labels={'deaths_per_100k': 'deaths per 100k'})
+#     fig_deaths.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+#     return fig_deaths
+
+################################################################################
+
+# styling the sidebar
+SIDEBAR_STYLE = {
+    "position": "fixed",
+    "top": 0,
+    "left": 0,
+    "bottom": 0,
+    "width": "16rem",
+    "padding": "2rem 1rem",
+    "background-color": "#f8f9fa",
+}
+
+# padding for the page content
+CONTENT_STYLE = {
+    "margin-left": "18rem",
+    "margin-right": "2rem",
+    "padding": "2rem 1rem",
+}
+
+image_filename = 'introduction.png'  # replace with your own image
+encoded_image = base64.b64encode(open(image_filename, 'rb').read())
+
+image_filename_2 = 'model-overview.png'  # replace with your own image
+encoded_image_2 = base64.b64encode(open(image_filename_2, 'rb').read())
+
+pollutants = [
+    'NO_annualMean', 'NO2_annualMean', 'O3_annualMean', 'PM2_5_annualMean'
+]
+covids = ['cases_per_100k', 'deaths_per_100k']
+
+sidebar = html.Div(
     [
-        dbc.Row([
-            dbc.Col(html.Div([
-                html.H1("Lung Pollution",
-                        className='display-3',
-                        style={'textAlign': 'center'}),
-                html.P(
-                    'How is climate change affecting our respiratory health?',
-                    className='lead',
-                    style={'textAlign': 'center'}),
-                html.P('', className='font-italic'),
-            ]),
-                    width=10),
-        ],
-                className='mb-4 mt-2'),
-        dbc.Row([
-            dbc.Col(html.Div(dcc.Graph(figure=fig_cases)), width=5),
-            dbc.Col(html.Div(dcc.Graph(figure=fig_deaths)), width=5),
-        ]),
-        dbc.Row([
-            dbc.Col([], width=3),
-            dbc.Col([
-                html.H2("", style={'textAlign': 'center'}),
-                dcc.Dropdown(id='county-searchbox',
-                             multi=False,
-                             value='Berlin',
-                             options=[{
-                                 'label': x,
-                                 'value': x
-                             } for x in sorted(df["county_new"].unique())]),
+        html.P("NAVS", className="lead"),
+        html.Hr(),
+        html.P("Go to", className="lead"),
+        dbc.Nav(
+            [
+                dbc.NavLink("Lung Pollution", href="/", active="exact"),
+                dbc.NavLink("Air Pollution & CoViD-19 in Germany",
+                            href="/page-1",
+                            active="exact"),
+                dbc.NavLink(
+                    "CoViD-19 Predictor", href="/page-2", active="exact"),
+                dbc.NavLink(
+                    "Behind the Scenes", href="/page-3", active="exact"),
             ],
-                    width=3),
-            dbc.Col([], width=3),
-        ],
-                className='mb-3 mt-2'),
-        dbc.Row([
-            dbc.Col(html.Div(dcc.Graph(id='graph_no2')), width=3),
-            dbc.Col(html.Div(dcc.Graph(id='graph_no')), width=3),
-            dbc.Col(html.Div(dcc.Graph(id='graph_o3')), width=3),
-            #dbc.Col(html.Div(dcc.Graph(figure=graph_pm10)), width=2),
-            #dbc.Col(html.Div(dcc.Graph(figure=graph_pm25)), width=2),
-        ]),
-        dbc.Row([
-            dbc.Col([], width=1.5),
-            dbc.Col(html.Div(dcc.Graph(id='graph_pm10')), width=3),
-            dbc.Col(html.Div(dcc.Graph(id='graph_pm25')), width=3),
-            #dbc.Col([], width=3),
-            #dbc.Col(html.Div(dcc.Graph(id='graph_o3')), width=4),
-            #dbc.Col(html.Div(dcc.Graph(figure=graph_pm10)), width=2),
-            #dbc.Col(html.Div(dcc.Graph(figure=graph_pm10)), width=2),
-        ]),
+            vertical=False,
+            pills=True,
+        ),
+        html.Hr(),
+        html.P("Who are we?", className="lead"),
+        html.P("Dorien Roosen", className="lead-1"),
+        html.P("Sara Broggini", className="lead-1"),
+        html.P("Ana Christianini", className="lead-1"),
+        html.P("Rifqi Farhan", className="lead-1"),
     ],
-    fluid=True)
+    style=SIDEBAR_STYLE,
+)
 
-############################### CALLBACKS ###################################
+content = html.Div(id="page-content", children=[], style=CONTENT_STYLE)
+
+app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
+
+
+@app.callback(Output("page-content", "children"), [Input("url", "pathname")],
+              prevent_initial_call=True)
+def render_page_content(pathname):
+    if pathname == "/":
+        return [
+            dbc.Col([
+                html.H1('Lung Pollution', style={'textAlign': 'left'}),
+                html.P("Welcome to our Data Science Project ",
+                       className="lead"),
+                html.Img(src='data:image/png;base64,{}'.format(
+                    encoded_image.decode()),
+                         width=1024,
+                         height=550)
+            ],
+                    width=12)
+        ]
+
+    elif pathname == "/page-1":
+        return [
+            dbc.Container(
+                [
+                    dbc.Row([
+                        dbc.Col(html.Div([
+                            html.H1("Lung Pollution",
+                                    className='display-3',
+                                    style={'textAlign': 'center'}),
+                            html.P('Impact of air pollution on CoViD-19',
+                                   className='lead',
+                                   style={'textAlign': 'center'}),
+                            html.P('', className='font-italic'),
+                        ]),
+                                width=10),
+                    ],
+                            className='mb-4 mt-2'),
+                    dbc.Row([
+                        dbc.Col(html.Div([
+                            html.P("Pollutants:"),
+                            dcc.RadioItems(
+                                id='pollutant',
+                                options=[{
+                                    'value': x,
+                                    'label': x
+                                } for x in pollutants],
+                                value=pollutants[0],
+                                labelStyle={'display': 'inline-block'}),
+                            dcc.Graph(id="choropleth_pollutant")
+                        ]),
+                                width=6),
+                        dbc.Col(html.Div([
+                            html.P("CoViD-19:"),
+                            dcc.RadioItems(
+                                id='covid',
+                                options=[{
+                                    'value': x,
+                                    'label': x
+                                } for x in covids],
+                                value=covids[0],
+                                labelStyle={'display': 'inline-block'}),
+                            dcc.Graph(id="choropleth_covid")
+                        ]),
+                                width=6),
+                    ]),
+                    dbc.Row([
+                        dbc.Col([], width=3),
+                        dbc.Col([
+                            html.H2("", style={'textAlign': 'center'}),
+                            dcc.Dropdown(id='county-searchbox',
+                                         multi=False,
+                                         value='Berlin',
+                                         options=[{
+                                             'label': x,
+                                             'value': x
+                                         } for x in sorted(
+                                             df["county_new"].unique())]),
+                        ],
+                                width=3),
+                        dbc.Col([], width=3),
+                    ],
+                            className='mb-3 mt-2'),
+                    dbc.Row([
+                        dbc.Col(html.Div(dcc.Graph(id='graph_no2')), width=4),
+                        dbc.Col(html.Div(dcc.Graph(id='graph_no')), width=4),
+                        dbc.Col(html.Div(dcc.Graph(id='graph_o3')), width=4),
+                        #dbc.Col(html.Div(dcc.Graph(figure=graph_pm10)), width=2),
+                        #dbc.Col(html.Div(dcc.Graph(figure=graph_pm25)), width=2),
+                    ]),
+                    dbc.Row([
+                        dbc.Col(html.Div(dcc.Graph(id='graph_pm10')), width=4),
+                        dbc.Col(html.Div(dcc.Graph(id='graph_pm25')), width=4),
+                        #dbc.Col([], width=3),
+                        #dbc.Col(html.Div(dcc.Graph(id='graph_o3')), width=4),
+                        #dbc.Col(html.Div(dcc.Graph(figure=graph_pm10)), width=2),
+                        #dbc.Col(html.Div(dcc.Graph(figure=graph_pm10)), width=2),
+                    ]),
+                ],
+                fluid=True)
+        ]
+
+    elif pathname == "/page-2":
+        return [
+            dbc.Row([
+                dbc.Col([
+                    html.I("Input NO value"),
+                    html.Br(),
+                    dcc.Input(id='input1',
+                              placeholder='Enter a value...',
+                              type='number',
+                              value='',
+                              style={'marginRight': '10px'})
+                ],
+                        width=3),
+                dbc.Col([
+                    html.I("Input NO2 value"),
+                    html.Br(),
+                    dcc.Input(id='input2',
+                              placeholder='Enter a value...',
+                              type='number',
+                              value='',
+                              style={'marginRight': '10px'})
+                ],
+                        width=3),
+                dbc.Col([
+                    html.I("Input O3 value"),
+                    html.Br(),
+                    dcc.Input(id='input3',
+                              placeholder='Enter a value...',
+                              type='number',
+                              value='',
+                              style={'marginRight': '10px'})
+                ],
+                        width=3),
+            ]),
+            dbc.Row([
+                dbc.Col([
+                    html.I("Input PM25 value"),
+                    html.Br(),
+                    dcc.Input(id='input4',
+                              placeholder='Enter a value...',
+                              type='number',
+                              value='',
+                              style={'marginRight': '10px'})
+                ],
+                        width=3),
+                dbc.Col([
+                    html.I("Input Population Density value"),
+                    html.Br(),
+                    dcc.Input(id='input5',
+                              placeholder='Enter a value...',
+                              type='number',
+                              value='',
+                              style={'marginRight': '10px'})
+                ],
+                        width=3),
+                dbc.Col([
+                    html.I("Input Vaccination Rate value"),
+                    html.Br(),
+                    dcc.Input(id='input6',
+                              placeholder='Enter a value...',
+                              type='number',
+                              value='',
+                              style={'marginRight': '10px'})
+                ],
+                        width=3),
+            ]),
+            dbc.Row([
+                dbc.Col([], width=3),
+                dbc.Col([
+                    html.I("Output Cases"),
+                    html.Br(),
+                    dcc.Input(id='output1',
+                              placeholder='Enter a value...',
+                              type='number',
+                              value='',
+                              style={'marginRight': '10px'})
+                ],
+                        width=3),
+                dbc.Col([], width=3),
+            ]),
+        ]
+
+    elif pathname == "/page-3":
+        return [
+            dbc.Col([
+                html.H1('Under the Hood', style={'textAlign': 'left'}),
+                html.P("Model Overview ", className="lead"),
+                html.Img(src='data:image/png;base64,{}'.format(
+                    encoded_image_2.decode()),
+                         width=1024,
+                         height=550)
+            ],
+                    width=12)
+        ]
+
+    # If the user tries to reach a different page, return a 404 message
+    return dbc.Jumbotron([
+        html.H1("404: Not found", className="text-danger"),
+        html.Hr(),
+        html.P(f"The pathname {pathname} was not recognised..."),
+    ])
+
+
+######pollutant
+@app.callback(Output("choropleth_pollutant", "figure"),
+              [Input("pollutant", "value")])
+def make_map_cases(pollutants):
+    fig_pollutant = px.choropleth_mapbox(
+        df,
+        geojson=counties,
+        locations='county_new',
+        featureidkey="properties.NAME_3",
+        color=pollutants,
+        color_continuous_scale="Emrld",
+        #range_color=(0, np.max(df["cases_per_100k"])),
+        animation_frame='year',
+        mapbox_style="carto-positron",
+        zoom=3.5,
+        center={
+            "lat": 51.312801,
+            "lon": 9.481544
+        },
+        opacity=0.5,
+        #labels={'cases_per_100k': 'cases per 100k'}
+    )
+    fig_pollutant.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    return fig_pollutant
+
+
+###covid
+@app.callback(Output("choropleth_covid", "figure"), [Input("covid", "value")])
+def make_map_cases(covids):
+    fig_covid = px.choropleth_mapbox(
+        df,
+        geojson=counties,
+        locations='county_new',
+        featureidkey="properties.NAME_3",
+        color=covids,
+        color_continuous_scale="greys",
+        #range_color=(0, np.max(df["cases_per_100k"])),
+        #animation_frame='year',
+        mapbox_style="carto-positron",
+        zoom=3.5,
+        center={
+            "lat": 51.312801,
+            "lon": 9.481544
+        },
+        opacity=0.5,
+        #labels={'cases_per_100k': 'cases per 100k'}
+    )
+    fig_covid.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    return fig_covid
+
+
 @app.callback([
     Output(component_id='graph_no2', component_property='figure'),
     Output(component_id='graph_no', component_property='figure'),
@@ -142,13 +414,12 @@ app.layout = dbc.Container(
     Output(component_id='graph_pm10', component_property='figure'),
     Output(component_id='graph_pm25', component_property='figure'),
 ], [Input(component_id='county-searchbox', component_property='value')])
-
 def update_graph(county_selected):
     #print(county_selected)
     #print(type(county_selected))
 
-    dff = df.copy()
-    dff = dff[dff["county_new"] == county_selected]
+    #dff = df.copy()
+    dff = df[df["county_new"] == county_selected]
 
     height = 280
     width = 350
@@ -176,14 +447,12 @@ def update_graph(county_selected):
                                                     showgrid=False,
                                                     showticklabels=True))
 
-
     graph_no2.update_yaxes(
         showline=False,
         linewidth=0.25,
         matches=None,  #autoscale y axis
         linecolor='gray',
         gridcolor='gray')
-
 
     # Graph for pollutant 2 (NO)
     graph_no = px.area(dff,
@@ -210,7 +479,6 @@ def update_graph(county_selected):
                           matches=None,
                           linecolor='gray',
                           gridcolor='gray')
-
 
     # Graph for pollutant 3 (O3)
     graph_o3 = px.area(dff,
