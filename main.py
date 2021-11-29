@@ -110,8 +110,11 @@ CONTENT_STYLE = {
     "padding": "2rem 1rem",
 }
 
-image_filename = 'intro.png'  # replace with your own image
+image_filename = 'introduction.png'  # replace with your own image
 encoded_image = base64.b64encode(open(image_filename, 'rb').read())
+
+image_filename_2 = 'model-overview.png'  # replace with your own image
+encoded_image_2 = base64.b64encode(open(image_filename_2, 'rb').read())
 
 pollutants = [
     'NO_annualMean', 'NO2_annualMean', 'O3_annualMean', 'PM2_5_annualMean'
@@ -324,6 +327,19 @@ def render_page_content(pathname):
                 dbc.Col([],
                         width=3),
                 ]),
+        ]
+
+    elif pathname == "/page-3":
+        return [
+            dbc.Col([
+                html.H1('Under the Hood', style={'textAlign': 'left'}),
+                html.P("Model Overview ", className="lead"),
+                html.Img(src='data:image/png;base64,{}'.format(
+                    encoded_image_2.decode()),
+                         width=1024,
+                         height=550)
+            ],
+                    width=12)
         ]
 
     # If the user tries to reach a different page, return a 404 message
