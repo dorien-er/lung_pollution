@@ -1,10 +1,10 @@
-import plotly.graph_objects as go  # or plotly.express as px
+#import plotly.graph_objects as go  # or plotly.express as px
 import dash
-import dash_core_components as dcc
-#from dash import dcc
+#import dash_core_components as dcc
+from dash import dcc
 import dash_bootstrap_components as dbc
-#from dash import html
-import dash_html_components as html
+from dash import html
+#import dash_html_components as html
 import pandas as pd
 import json
 import plotly.express as px
@@ -12,35 +12,31 @@ import numpy as np
 from urllib.request import urlopen
 from dash.dependencies import Output, Input
 #from memoized_property import memoized_property
-from flask_caching import Cache
+#from flask_caching import Cache
 #import os
 import base64
-# import matplotlib as mpl
-# import matplotlib.pyplot as plt
-
-# from matplotlib.cm import ScalarMappable
-# from matplotlib.lines import Line2D
-# from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-# from textwrap import wrap
+#from google.cloud import storage
 
 ################################################################################
 
-app = dash.Dash(__name__,
-                external_stylesheets=[dbc.themes.LUX],
-                #prevent_initial_callbacks=True,
-                meta_tags=[{
-                    'name': 'viewport',
-                    'content': 'width=device-width, initial-scale=1.0'
-                }])
+app = dash.Dash(
+    __name__,
+    external_stylesheets=[dbc.themes.LUX],
+    #prevent_initial_callbacks=True,
+    meta_tags=[{
+        'name': 'viewport',
+        'content': 'width=device-width, initial-scale=1.0'
+    }])
 
-cache = Cache(app.server,
-              config={
-                  #'CACHE_TYPE': 'redis',
-                  'CACHE_TYPE': 'filesystem',
-                  'CACHE_DIR': 'cache-directory'
-              })
+# cache = Cache(
+#     app.server,
+#     config={
+#         #'CACHE_TYPE': 'redis',
+#         'CACHE_TYPE': 'filesystem',
+#         'CACHE_DIR': 'cache-directory'
+#     })
 
-TIMEOUT = 3600
+# TIMEOUT = 3600
 
 server = app.server
 
@@ -48,7 +44,8 @@ app.config.suppress_callback_exceptions = True
 
 ############################### DATASETS #######################################
 
-@cache.memoize(timeout=TIMEOUT)
+
+#@cache.memoize(timeout=TIMEOUT)
 def load_data():
     df1 = pd.read_csv("./lung_pollution/data/covid_pollution_final-rifqi.csv")
     df = df1[[
@@ -59,9 +56,28 @@ def load_data():
     ]]
     return df
 
-df=load_data()
 
-@cache.memoize(timeout=TIMEOUT)
+#df=load_data()
+
+
+#@cache.memoize(timeout=TIMEOUT)
+def load_data_google_bucket():
+    """method to get the training data (or a portion of it) from google cloud bucket"""
+    ### GCP Storage - - - - - - - - - - - - - - - - - - - - - -
+    BUCKET_NAME = 'lungpollution-2021-predictonline'
+    ##### Data  - - - - - - - - - - - - - - - - - - - - - - - -
+    BUCKET_TRAIN_DATA_PATH = 'data/covid_pollution_final-rifqi.csv'
+
+    df = pd.read_csv(
+        f"gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}",  #nrows=1000
+    )
+    return df
+
+
+df = load_data_google_bucket()
+
+
+#@cache.memoize(timeout=TIMEOUT)
 def load_geojson():
     with urlopen(
             'https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/4_niedrig.geo.json'
@@ -69,8 +85,8 @@ def load_geojson():
         counties = json.load(response)
     return counties
 
-counties = load_geojson()
 
+counties = load_geojson()
 
 ############################### IMAGES, GLOBAL VARIABLES #######################
 
@@ -86,10 +102,12 @@ encoded_image_3 = base64.b64encode(open(image_filename_3, 'rb').read())
 image_filename_4 = './lung_pollution/data/images/gauge.png'  # replace with your own image
 encoded_image_4 = base64.b64encode(open(image_filename_4, 'rb').read())
 
-pollutants = [
-    'NO_annualMean', 'NO2_annualMean', 'O3_annualMean', 'PM2_5_annualMean'
-]
-covids = ['cases_per_100k', 'deaths_per_100k']
+# pollutants = [
+#     'NO_annualMean', 'NO2_annualMean', 'O3_annualMean', 'PM2_5_annualMean'
+# ]
+# covids = ['cases_per_100k', 'deaths_per_100k']
+
+token = open('./lung_pollution/data/.mapbox_token').read()
 
 ################################ SIDEBAR SETTING ###############################
 
@@ -124,8 +142,7 @@ sidebar = html.Div(
                             active="exact"),
                 dbc.NavLink(
                     "CoViD-19 Predictor", href="/page-2", active="exact"),
-                dbc.NavLink(
-                    "Under the Hood", href="/page-3", active="exact"),
+                dbc.NavLink("Under the Hood", href="/page-3", active="exact"),
             ],
             vertical=False,
             pills=True,
@@ -141,7 +158,6 @@ sidebar = html.Div(
 )
 #################################################################################
 
-
 content = html.Div(id="page-content", children=[], style=CONTENT_STYLE)
 
 app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
@@ -152,76 +168,97 @@ app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 #@cache.memoize(timeout=TIMEOUT)
 def render_page_content(pathname):
     if pathname == "/":
-        return [dbc.Col([
-            html.H1('Lung Pollution', style={'textAlign': 'left'}),
-            html.P("Welcome to our Data Science Project ", className="lead"),
-            html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()),
-                     width=1024, height=550)
-
-            ],width=12)
+        return [
+            dbc.Col([
+                html.H1('Lung Pollution', style={'textAlign': 'left'}),
+                html.P("Welcome to our Data Science Project ",
+                       className="lead"),
+                html.Img(src='data:image/png;base64,{}'.format(
+                    encoded_image.decode()),
+                         width=1024,
+                         height=550)
+            ],
+                    width=12)
         ]
 
     elif pathname == "/page-1":
         return [
             dbc.Container(
                 [
-                    dbc.Row([
-                        dbc.Col(html.Div([
-                            html.H1("Air Pollution & CoViD-19 in Germany",
-                                    #className='display-3',
-                                    style={'textAlign': 'left'}),
-                            html.P('Impact of air pollution on CoViD-19',
-                                   className='lead',
-                                   style={'textAlign': 'left'}),
-                            html.P('', className='font-italic'),
-                        ]),
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                html.Div([
+                                    html.H1(
+                                        "Air Pollution & CoViD-19 in Germany",
+                                        #className='display-3',
+                                        style={'textAlign': 'left'}),
+                                    html.P(
+                                        'Impact of air pollution on CoViD-19',
+                                        className='lead',
+                                        style={'textAlign': 'left'}),
+                                    html.P('', className='font-italic'),
+                                ]),
                                 width=10),
-                    ],
-                            className='mb-4 mt-2'),
+                        ],
+                        className='mb-4 mt-2'),
                     dbc.Row([
                         dbc.Col(html.Div([
                             html.P("Pollutants:"),
                             dcc.RadioItems(
                                 id='pollutant',
                                 options=[{
-                                    'value': x,
-                                    'label': x
-                                } for x in pollutants],
-                                value=pollutants[0],
+                                    'label': 'NO annualMean',
+                                    'value': 'NO_annualMean'
+                                }, {
+                                    'label': 'NO2 annualMean',
+                                    'value': 'NO2_annualMean'
+                                }, {
+                                    'label': 'O3 annualMean',
+                                    'value': 'O3_annualMean'
+                                }, {
+                                    'label': 'PM2.5 annualMean',
+                                    'value': 'PM2_5_annualMean'
+                                }],
+                                value='NO_annualMean',
                                 labelStyle={'display': 'inline-block'},
                                 inputStyle={"margin-left": "20px"}),
-                            dcc.Graph(id="choropleth_pollutant")]),
-                        width=6),
-
+                            dcc.Graph(id="choropleth_pollutant")
+                        ]),
+                                width=6),
                         dbc.Col(html.Div([
                             html.P("CoViD-19:"),
                             dcc.RadioItems(
                                 id='covid',
                                 options=[{
-                                    'value': x,
-                                    'label': x
-                                } for x in covids],
-                                value=covids[0],
+                                    'label': 'Cases per 100k',
+                                    'value': 'cases_per_100k'
+                                }, {
+                                    'label': 'Deaths per 100k',
+                                    'value': 'deaths_per_100k'
+                                }],
+                                value='cases_per_100k',
                                 labelStyle={'display': 'inline-block'},
                                 inputStyle={"margin-left": "20px"}),
-                            dcc.Graph(id="choropleth_covid")]),
-                        width=6),
+                            dcc.Graph(id="choropleth_covid")
+                        ]),
+                                width=6),
                     ]),
                     dbc.Row([
-                        dbc.Col([], width=3),
+                        dbc.Col([], width=4),
                         dbc.Col([
                             html.H2("", style={'textAlign': 'center'}),
                             dcc.Dropdown(id='county-searchbox',
                                          multi=False,
-                                         value='Berlin',
+                                         value='Aachen Städte',
                                          options=[{
                                              'label': x,
                                              'value': x
                                          } for x in sorted(
                                              df["county_new"].unique())]),
                         ],
-                                width=3),
-                        dbc.Col([], width=3),
+                                width=4),
+                        dbc.Col([], width=4),
                     ],
                             className='mb-3 mt-2'),
                     dbc.Row([
@@ -396,48 +433,61 @@ def render_page_content(pathname):
         html.P(f"The pathname {pathname} was not recognised..."),
     ])
 
+
 ######pollutant
-@app.callback(
-    Output("choropleth_pollutant", "figure"),
-    [Input("pollutant", "value")])
-@cache.memoize(timeout=TIMEOUT)
+@app.callback(Output("choropleth_pollutant", "figure"),
+              [Input("pollutant", "value")])
+#@cache.memoize(timeout=TIMEOUT)
 def make_map_pollutant(pollutants):
-    fig_pollutant = px.choropleth_mapbox(df,
-                                    geojson=counties,
-                                    locations='county_new',
-                                    featureidkey="properties.NAME_3",
-                                    color=pollutants,
-                                    color_continuous_scale="Emrld",
-                                    #range_color=(0, np.max(df["cases_per_100k"])),
-                                    animation_frame='year',
-                                    mapbox_style="carto-positron",
-                                    zoom=3.5,
-                                    center={
-                                        "lat": 51.312801,
-                                        "lon": 9.481544
-                                    },
-                                    opacity=0.5,
-                                    #labels={'cases_per_100k': 'cases per 100k'}
-                                    )
-    fig_pollutant.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig_pollutant = px.choropleth_mapbox(
+        df,
+        geojson=counties,
+        locations='county_new',
+        featureidkey="properties.NAME_3",
+        color=pollutants,
+        color_continuous_scale="ylorrd",  #Emrld
+        #range_color=(0, np.max(df["cases_per_100k"])),
+        animation_frame='year',
+        mapbox_style="carto-positron",
+        zoom=3.8,
+        center={
+            "lat": 51.312801,
+            "lon": 9.481544
+        },
+        opacity=0.5,
+        #labels={'cases_per_100k': 'cases per 100k'}
+    )
+    fig_pollutant.update_layout(margin={
+        "r": 0,
+        "t": 0,
+        "l": 0,
+        "b": 0
+    },
+                                mapbox_accesstoken=token)
     return fig_pollutant
 
+
 ###covid
-@app.callback(Output("choropleth_covid", "figure"),
-              [Input("covid", "value")])
-@cache.memoize(timeout=TIMEOUT)
+@app.callback(Output("choropleth_covid", "figure"), [Input("covid", "value")])
+#@cache.memoize(timeout=TIMEOUT)
 def make_map_covid(covids):
+
+    if covids == 'cases_per_100k':
+        color_scale = "greys"
+    elif covids == 'deaths_per_100k':
+        color_scale = "amp"
+
     fig_covid = px.choropleth_mapbox(
         df,
         geojson=counties,
         locations='county_new',
         featureidkey="properties.NAME_3",
         color=covids,
-        color_continuous_scale="greys",
+        color_continuous_scale=color_scale,
         #range_color=(0, np.max(df["cases_per_100k"])),
         #animation_frame='year',
         mapbox_style="carto-positron",
-        zoom=3.5,
+        zoom=4.3,
         center={
             "lat": 51.312801,
             "lon": 9.481544
@@ -474,10 +524,11 @@ def update_graph(county_selected):
                         template=template,
                         height=height,
                         width=width,
-                        range_y=[
-                            df['NO2_annualMean'].min(),
-                            1.1 * df['NO2_annualMean'].max()
-                        ]).update_layout(margin=dict(t=50, r=0, l=0, b=50),
+                        # range_y=[
+                        #     df['NO2_annualMean'].min(),
+                        #     1.1 * df['NO2_annualMean'].max()
+                        # ]
+                        ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
                                          paper_bgcolor='rgba(0,0,0,0)',
                                          plot_bgcolor='rgba(0,0,0,0)',
                                          yaxis=dict(title=None,
@@ -502,10 +553,11 @@ def update_graph(county_selected):
                        template=template,
                        height=height,
                        width=width,
-                       range_y=[
-                           df['NO_annualMean'].min(),
-                           1.1 * df['NO_annualMean'].max()
-                       ]).update_layout(margin=dict(t=50, r=0, l=0, b=50),
+                    #    range_y=[
+                    #        df['NO_annualMean'].min(),
+                    #        1.1 * df['NO_annualMean'].max()
+                    #    ]
+                       ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
                                         paper_bgcolor='rgba(0,0,0,0)',
                                         plot_bgcolor='rgba(0,0,0,0)',
                                         yaxis=dict(title=None,
@@ -528,10 +580,11 @@ def update_graph(county_selected):
                        template=template,
                        height=height,
                        width=width,
-                       range_y=[
-                           df['O3_annualMean'].min(),
-                           1.1 * df['O3_annualMean'].max()
-                       ]).update_layout(margin=dict(t=50, r=0, l=0, b=50),
+                    #    range_y=[
+                    #        df['O3_annualMean'].min(),
+                    #        1.1 * df['O3_annualMean'].max()
+                    #    ]
+                       ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
                                         paper_bgcolor='rgba(0,0,0,0)',
                                         plot_bgcolor='rgba(0,0,0,0)',
                                         yaxis=dict(title=None,
@@ -554,10 +607,11 @@ def update_graph(county_selected):
                          template=template,
                          height=height,
                          width=width,
-                         range_y=[
-                             df['PM10_annualMean'].min(),
-                             1.1 * df['PM10_annualMean'].max()
-                         ]).update_layout(margin=dict(t=50, r=0, l=0, b=50),
+                        #  range_y=[
+                        #      df['PM10_annualMean'].min(),
+                        #      1.1 * df['PM10_annualMean'].max()
+                        #  ]
+                         ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
                                           paper_bgcolor='rgba(0,0,0,0)',
                                           plot_bgcolor='rgba(0,0,0,0)',
                                           yaxis=dict(title=None,
@@ -580,10 +634,11 @@ def update_graph(county_selected):
                          template=template,
                          height=height,
                          width=width,
-                         range_y=[
-                             df['PM2_5_annualMean'].min(),
-                             1.1 * df['PM2_5_annualMean'].max()
-                         ]).update_layout(margin=dict(t=50, r=0, l=0, b=50),
+                        #  range_y=[
+                        #      df['PM2_5_annualMean'].min(),
+                        #      1.1 * df['PM2_5_annualMean'].max()
+                        #  ]
+                         ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
                                           paper_bgcolor='rgba(0,0,0,0)',
                                           plot_bgcolor='rgba(0,0,0,0)',
                                           yaxis=dict(title=None,
@@ -605,4 +660,4 @@ def update_graph(county_selected):
 #     app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
-    app.run_server(debug=True, use_reloader=True)
+    app.run_server(host='0.0.0.0', port=8020, debug=True)
