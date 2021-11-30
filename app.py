@@ -25,22 +25,20 @@ import base64
 
 ################################################################################
 
-app = dash.Dash(
-    __name__,
-    external_stylesheets=[dbc.themes.LUX],
-    #prevent_initial_callbacks=True,
-    meta_tags=[{
-        'name': 'viewport',
-        'content': 'width=device-width, initial-scale=1.0'
-    }])
+app = dash.Dash(__name__,
+                external_stylesheets=[dbc.themes.LUX],
+                #prevent_initial_callbacks=True,
+                meta_tags=[{
+                    'name': 'viewport',
+                    'content': 'width=device-width, initial-scale=1.0'
+                }])
 
-cache = Cache(
-    app.server,
-    config={
-        #'CACHE_TYPE': 'redis',
-        'CACHE_TYPE': 'filesystem',
-        'CACHE_DIR': 'cache-directory'
-    })
+cache = Cache(app.server,
+              config={
+                  #'CACHE_TYPE': 'redis',
+                  'CACHE_TYPE': 'filesystem',
+                  'CACHE_DIR': 'cache-directory'
+              })
 
 TIMEOUT = 3600
 
@@ -50,39 +48,42 @@ app.config.suppress_callback_exceptions = True
 
 ############################### DATASETS #######################################
 
-
 @cache.memoize(timeout=TIMEOUT)
 def load_data():
-    df = pd.read_csv("./lung_pollution/data/covid_pollution_final-rifqi.csv")
+    df1 = pd.read_csv("./lung_pollution/data/covid_pollution_final-rifqi.csv")
+    df = df1[[
+        'county_new', 'county', 'year', 'NO2_annualMean', 'NO_annualMean',
+        'O3_annualMean', 'PM10_annualMean', 'PM2_5_annualMean',
+        'cases_per_100k', 'deaths_per_100k', 'fully_vaccinated',
+        'Population_density'
+    ]]
     return df
 
-
-df = load_data()
-
+df=load_data()
 
 @cache.memoize(timeout=TIMEOUT)
 def load_geojson():
     with urlopen(
-            'https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/1_sehr_hoch.geo.json'
+            'https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/4_niedrig.geo.json'
     ) as response:
         counties = json.load(response)
     return counties
 
-
 counties = load_geojson()
+
 
 ############################### IMAGES, GLOBAL VARIABLES #######################
 
-image_filename = 'introduction.png'  # replace with your own image
+image_filename = './lung_pollution/data/images/introduction.png'  # replace with your own image
 encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
-image_filename_2 = 'model-overview.png'  # replace with your own image
+image_filename_2 = './lung_pollution/data/images/model-overview.png'  # replace with your own image
 encoded_image_2 = base64.b64encode(open(image_filename_2, 'rb').read())
 
-image_filename_3 = 'feature-permutation.png'  # replace with your own image
+image_filename_3 = './lung_pollution/data/images/feature-permutation.png'  # replace with your own image
 encoded_image_3 = base64.b64encode(open(image_filename_3, 'rb').read())
 
-image_filename_4 = 'gauge.png'  # replace with your own image
+image_filename_4 = './lung_pollution/data/images/gauge.png'  # replace with your own image
 encoded_image_4 = base64.b64encode(open(image_filename_4, 'rb').read())
 
 pollutants = [
@@ -123,7 +124,8 @@ sidebar = html.Div(
                             active="exact"),
                 dbc.NavLink(
                     "CoViD-19 Predictor", href="/page-2", active="exact"),
-                dbc.NavLink("Under the Hood", href="/page-3", active="exact"),
+                dbc.NavLink(
+                    "Under the Hood", href="/page-3", active="exact"),
             ],
             vertical=False,
             pills=True,
@@ -139,6 +141,7 @@ sidebar = html.Div(
 )
 #################################################################################
 
+
 content = html.Div(id="page-content", children=[], style=CONTENT_STYLE)
 
 app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
@@ -149,40 +152,32 @@ app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 #@cache.memoize(timeout=TIMEOUT)
 def render_page_content(pathname):
     if pathname == "/":
-        return [
-            dbc.Col([
-                html.H1('Lung Pollution', style={'textAlign': 'left'}),
-                html.P("Welcome to our Data Science Project ",
-                       className="lead"),
-                html.Img(src='data:image/png;base64,{}'.format(
-                    encoded_image.decode()),
-                         width=1024,
-                         height=550)
-            ],
-                    width=12)
+        return [dbc.Col([
+            html.H1('Lung Pollution', style={'textAlign': 'left'}),
+            html.P("Welcome to our Data Science Project ", className="lead"),
+            html.Img(src='data:image/png;base64,{}'.format(encoded_image.decode()),
+                     width=1024, height=550)
+
+            ],width=12)
         ]
 
     elif pathname == "/page-1":
         return [
             dbc.Container(
                 [
-                    dbc.Row(
-                        [
-                            dbc.Col(
-                                html.Div([
-                                    html.H1(
-                                        "Air Pollution & CoViD-19 in Germany",
-                                        #className='display-3',
-                                        style={'textAlign': 'left'}),
-                                    html.P(
-                                        'Impact of air pollution on CoViD-19',
-                                        className='lead',
-                                        style={'textAlign': 'left'}),
-                                    html.P('', className='font-italic'),
-                                ]),
+                    dbc.Row([
+                        dbc.Col(html.Div([
+                            html.H1("Air Pollution & CoViD-19 in Germany",
+                                    #className='display-3',
+                                    style={'textAlign': 'left'}),
+                            html.P('Impact of air pollution on CoViD-19',
+                                   className='lead',
+                                   style={'textAlign': 'left'}),
+                            html.P('', className='font-italic'),
+                        ]),
                                 width=10),
-                        ],
-                        className='mb-4 mt-2'),
+                    ],
+                            className='mb-4 mt-2'),
                     dbc.Row([
                         dbc.Col(html.Div([
                             html.P("Pollutants:"),
@@ -195,9 +190,9 @@ def render_page_content(pathname):
                                 value=pollutants[0],
                                 labelStyle={'display': 'inline-block'},
                                 inputStyle={"margin-left": "20px"}),
-                            dcc.Graph(id="choropleth_pollutant")
-                        ]),
-                                width=6),
+                            dcc.Graph(id="choropleth_pollutant")]),
+                        width=6),
+
                         dbc.Col(html.Div([
                             html.P("CoViD-19:"),
                             dcc.RadioItems(
@@ -209,9 +204,8 @@ def render_page_content(pathname):
                                 value=covids[0],
                                 labelStyle={'display': 'inline-block'},
                                 inputStyle={"margin-left": "20px"}),
-                            dcc.Graph(id="choropleth_covid")
-                        ]),
-                                width=6),
+                            dcc.Graph(id="choropleth_covid")]),
+                        width=6),
                     ]),
                     dbc.Row([
                         dbc.Col([], width=3),
@@ -402,36 +396,35 @@ def render_page_content(pathname):
         html.P(f"The pathname {pathname} was not recognised..."),
     ])
 
-
 ######pollutant
-@app.callback(Output("choropleth_pollutant", "figure"),
-              [Input("pollutant", "value")])
+@app.callback(
+    Output("choropleth_pollutant", "figure"),
+    [Input("pollutant", "value")])
 @cache.memoize(timeout=TIMEOUT)
 def make_map_pollutant(pollutants):
-    fig_pollutant = px.choropleth_mapbox(
-        df,
-        geojson=counties,
-        locations='county_new',
-        featureidkey="properties.NAME_3",
-        color=pollutants,
-        color_continuous_scale="Emrld",
-        #range_color=(0, np.max(df["cases_per_100k"])),
-        animation_frame='year',
-        mapbox_style="carto-positron",
-        zoom=3.5,
-        center={
-            "lat": 51.312801,
-            "lon": 9.481544
-        },
-        opacity=0.5,
-        #labels={'cases_per_100k': 'cases per 100k'}
-    )
+    fig_pollutant = px.choropleth_mapbox(df,
+                                    geojson=counties,
+                                    locations='county_new',
+                                    featureidkey="properties.NAME_3",
+                                    color=pollutants,
+                                    color_continuous_scale="Emrld",
+                                    #range_color=(0, np.max(df["cases_per_100k"])),
+                                    animation_frame='year',
+                                    mapbox_style="carto-positron",
+                                    zoom=3.5,
+                                    center={
+                                        "lat": 51.312801,
+                                        "lon": 9.481544
+                                    },
+                                    opacity=0.5,
+                                    #labels={'cases_per_100k': 'cases per 100k'}
+                                    )
     fig_pollutant.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig_pollutant
 
-
 ###covid
-@app.callback(Output("choropleth_covid", "figure"), [Input("covid", "value")])
+@app.callback(Output("choropleth_covid", "figure"),
+              [Input("covid", "value")])
 @cache.memoize(timeout=TIMEOUT)
 def make_map_covid(covids):
     fig_covid = px.choropleth_mapbox(
@@ -612,4 +605,4 @@ def update_graph(county_selected):
 #     app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host='0.0.0.0', port=8080)
+    app.run_server(debug=True, use_reloader=True)
