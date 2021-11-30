@@ -11,8 +11,7 @@ import plotly.express as px
 import numpy as np
 from urllib.request import urlopen
 from dash.dependencies import Output, Input
-#from memoized_property import memoized_property
-#from flask_caching import Cache
+from flask_caching import Cache
 #import os
 import base64
 #from google.cloud import storage
@@ -28,15 +27,15 @@ app = dash.Dash(
         'content': 'width=device-width, initial-scale=1.0'
     }])
 
-# cache = Cache(
-#     app.server,
-#     config={
-#         #'CACHE_TYPE': 'redis',
-#         'CACHE_TYPE': 'filesystem',
-#         'CACHE_DIR': 'cache-directory'
-#     })
+cache = Cache(
+    app.server,
+    config={
+        #'CACHE_TYPE': 'redis',
+        'CACHE_TYPE': 'filesystem',
+        'CACHE_DIR': 'cache-directory'
+    })
 
-# TIMEOUT = 3600
+TIMEOUT = 3600
 
 server = app.server
 
@@ -45,11 +44,11 @@ app.config.suppress_callback_exceptions = True
 ############################### DATASETS #######################################
 
 
-#@cache.memoize(timeout=TIMEOUT)
+@cache.memoize(timeout=TIMEOUT)
 def load_data():
-    df1 = pd.read_csv("./lung_pollution/data/covid_pollution_final-rifqi.csv")
-    df = df1[[
-        'county_new', 'county', 'year', 'NO2_annualMean', 'NO_annualMean',
+    df = pd.read_csv("./lung_pollution/data/covid_pollution_complete.csv")
+    df = df[[
+        'county_new', 'year', 'NO2_annualMean', 'NO_annualMean',
         'O3_annualMean', 'PM10_annualMean', 'PM2_5_annualMean',
         'cases_per_100k', 'deaths_per_100k', 'fully_vaccinated',
         'Population_density'
@@ -57,27 +56,33 @@ def load_data():
     return df
 
 
-#df=load_data()
+df = load_data()
 
 
-#@cache.memoize(timeout=TIMEOUT)
+@cache.memoize(timeout=TIMEOUT)
 def load_data_google_bucket():
     """method to get the training data (or a portion of it) from google cloud bucket"""
     ### GCP Storage - - - - - - - - - - - - - - - - - - - - - -
     BUCKET_NAME = 'lungpollution-2021-predictonline'
     ##### Data  - - - - - - - - - - - - - - - - - - - - - - - -
-    BUCKET_TRAIN_DATA_PATH = 'data/covid_pollution_final-rifqi.csv'
+    BUCKET_TRAIN_DATA_PATH = 'data/covid_pollution_complete.csv'
 
     df = pd.read_csv(
         f"gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}",  #nrows=1000
     )
+    df = df[[
+        'county_new', 'year', 'NO2_annualMean', 'NO_annualMean',
+        'O3_annualMean', 'PM10_annualMean', 'PM2_5_annualMean',
+        'cases_per_100k', 'deaths_per_100k', 'fully_vaccinated',
+        'Population_density'
+    ]]
     return df
 
 
-df = load_data_google_bucket()
+#df = load_data_google_bucket()
 
 
-#@cache.memoize(timeout=TIMEOUT)
+@cache.memoize(timeout=TIMEOUT)
 def load_geojson():
     with urlopen(
             'https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/4_niedrig.geo.json'
@@ -437,7 +442,7 @@ def render_page_content(pathname):
 ######pollutant
 @app.callback(Output("choropleth_pollutant", "figure"),
               [Input("pollutant", "value")])
-#@cache.memoize(timeout=TIMEOUT)
+@cache.memoize(timeout=TIMEOUT)
 def make_map_pollutant(pollutants):
     fig_pollutant = px.choropleth_mapbox(
         df,
@@ -469,7 +474,7 @@ def make_map_pollutant(pollutants):
 
 ###covid
 @app.callback(Output("choropleth_covid", "figure"), [Input("covid", "value")])
-#@cache.memoize(timeout=TIMEOUT)
+@cache.memoize(timeout=TIMEOUT)
 def make_map_covid(covids):
 
     if covids == 'cases_per_100k':
