@@ -15,6 +15,7 @@ from dash.dependencies import Output, Input
 from flask_caching import Cache
 #import os
 import base64
+from google.cloud import storage
 # import matplotlib as mpl
 # import matplotlib.pyplot as plt
 
@@ -59,7 +60,21 @@ def load_data():
     ]]
     return df
 
-df=load_data()
+#df=load_data()
+
+@cache.memoize(timeout=TIMEOUT)
+def load_data_google_bucket():
+    """method to get the training data (or a portion of it) from google cloud bucket"""
+    ### GCP Storage - - - - - - - - - - - - - - - - - - - - - -
+    BUCKET_NAME = 'lungpollution-2021-predictonline'
+    ##### Data  - - - - - - - - - - - - - - - - - - - - - - - -
+    BUCKET_TRAIN_DATA_PATH = 'data/covid_pollution_final-rifqi.csv'
+
+    df = pd.read_csv(f"gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}", #nrows=1000
+                     )
+    return df
+
+df = load_data_google_bucket()
 
 @cache.memoize(timeout=TIMEOUT)
 def load_geojson():
@@ -90,6 +105,8 @@ pollutants = [
     'NO_annualMean', 'NO2_annualMean', 'O3_annualMean', 'PM2_5_annualMean'
 ]
 covids = ['cases_per_100k', 'deaths_per_100k']
+
+token = open('./lung_pollution/data/.mapbox_token').read()
 
 ################################ SIDEBAR SETTING ###############################
 
@@ -190,7 +207,8 @@ def render_page_content(pathname):
                                 value=pollutants[0],
                                 labelStyle={'display': 'inline-block'},
                                 inputStyle={"margin-left": "20px"}),
-                            dcc.Graph(id="choropleth_pollutant")]),
+                            dcc.Graph(id="choropleth_pollutant")
+                            ]),
                         width=6),
 
                         dbc.Col(html.Div([
@@ -400,26 +418,28 @@ def render_page_content(pathname):
 @app.callback(
     Output("choropleth_pollutant", "figure"),
     [Input("pollutant", "value")])
-@cache.memoize(timeout=TIMEOUT)
+#@cache.memoize(timeout=TIMEOUT)
 def make_map_pollutant(pollutants):
-    fig_pollutant = px.choropleth_mapbox(df,
-                                    geojson=counties,
-                                    locations='county_new',
-                                    featureidkey="properties.NAME_3",
-                                    color=pollutants,
-                                    color_continuous_scale="Emrld",
-                                    #range_color=(0, np.max(df["cases_per_100k"])),
-                                    animation_frame='year',
-                                    mapbox_style="carto-positron",
-                                    zoom=3.5,
-                                    center={
-                                        "lat": 51.312801,
-                                        "lon": 9.481544
-                                    },
-                                    opacity=0.5,
-                                    #labels={'cases_per_100k': 'cases per 100k'}
-                                    )
-    fig_pollutant.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig_pollutant = px.choropleth_mapbox(
+        df,
+        geojson=counties,
+        locations='county_new',
+        featureidkey="properties.NAME_3",
+        color=pollutants,
+        color_continuous_scale="Emrld",
+        #range_color=(0, np.max(df["cases_per_100k"])),
+        animation_frame='year',
+        mapbox_style="carto-positron",
+        zoom=3.5,
+        center={
+            "lat": 51.312801,
+            "lon": 9.481544
+        },
+        opacity=0.5,
+        #labels={'cases_per_100k': 'cases per 100k'}
+        )
+    fig_pollutant.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                                mapbox_accesstoken=token)
     return fig_pollutant
 
 ###covid
@@ -605,4 +625,4 @@ def update_graph(county_selected):
 #     app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
-    app.run_server(debug=True, use_reloader=True)
+    app.run_server(host='0.0.0.0', port=8020, debug=True)
