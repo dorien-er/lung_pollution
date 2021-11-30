@@ -74,16 +74,16 @@ counties = load_geojson()
 
 ############################### IMAGES, GLOBAL VARIABLES #######################
 
-image_filename = 'introduction.png'  # replace with your own image
+image_filename = './lung_pollution/data/images/introduction.png'  # replace with your own image
 encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
-image_filename_2 = 'model-overview.png'  # replace with your own image
+image_filename_2 = './lung_pollution/data/images/model-overview.png'  # replace with your own image
 encoded_image_2 = base64.b64encode(open(image_filename_2, 'rb').read())
 
-image_filename_3 = 'feature-permutation.png'  # replace with your own image
+image_filename_3 = './lung_pollution/data/images/feature-permutation.png'  # replace with your own image
 encoded_image_3 = base64.b64encode(open(image_filename_3, 'rb').read())
 
-image_filename_4 = 'gauge.png'  # replace with your own image
+image_filename_4 = './lung_pollution/data/images/gauge.png'  # replace with your own image
 encoded_image_4 = base64.b64encode(open(image_filename_4, 'rb').read())
 
 pollutants = [
