@@ -8,7 +8,7 @@ basic_scaling:
 
 resources:
     cpu: 4
-    memory_gb: 16
-    disk_size_gb: 30
+    memory_gb: 8
+    disk_size_gb: 20
 
 entrypoint: gunicorn -b 0.0.0.0:8080 main:server

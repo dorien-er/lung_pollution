@@ -6,4 +6,4 @@ raw_data/
 **/__pycache__/
 .env
 cache-directory
-.vscode
+#.vscode

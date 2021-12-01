@@ -35,7 +35,7 @@ cache = Cache(
         'CACHE_DIR': 'cache-directory'
     })
 
-TIMEOUT = 3600
+TIMEOUT = 60
 
 server = app.server
 
@@ -46,17 +46,17 @@ app.config.suppress_callback_exceptions = True
 
 @cache.memoize(timeout=TIMEOUT)
 def load_data():
-    df = pd.read_csv("./lung_pollution/data/last_df.csv")
-    df = df[[
-        'county_new', 'year', 'NO2_annualMean', 'NO_annualMean',
-        'O3_annualMean', 'PM10_annualMean', 'PM2_5_annualMean',
-        'cases_per_100k', 'deaths_per_100k', 'fully_vaccinated',
-        'Population_density'
-    ]]
+    df = pd.read_csv("./lung_pollution/data/covid_pollution_complete.csv")
+    # df = df[[
+    #     'county_new', 'year', 'NO2_annualMean', 'NO_annualMean',
+    #     'O3_annualMean', 'PM10_annualMean', 'PM2_5_annualMean',
+    #     'cases_per_100k', 'deaths_per_100k', 'fully_vaccinated',
+    #     'Population_density'
+    # ]]
     return df
 
 
-df = load_data()
+#df = load_data()
 
 
 @cache.memoize(timeout=TIMEOUT)
@@ -65,21 +65,21 @@ def load_data_google_bucket():
     ### GCP Storage - - - - - - - - - - - - - - - - - - - - - -
     BUCKET_NAME = 'lungpollution-2021-predictonline'
     ##### Data  - - - - - - - - - - - - - - - - - - - - - - - -
-    BUCKET_TRAIN_DATA_PATH = 'data/last_df.csv'
+    BUCKET_TRAIN_DATA_PATH = 'data/covid_pollution_complete.csv'
 
     df = pd.read_csv(
         f"gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}",  #nrows=1000
     )
-    df = df[[
-        'county_new', 'year', 'NO2_annualMean', 'NO_annualMean',
-        'O3_annualMean', 'PM10_annualMean', 'PM2_5_annualMean',
-        'cases_per_100k', 'deaths_per_100k', 'fully_vaccinated',
-        'Population_density'
-    ]]
+    # df = df[[
+    #     'county_new', 'year', 'NO2_annualMean', 'NO_annualMean',
+    #     'O3_annualMean', 'PM10_annualMean', 'PM2_5_annualMean',
+    #     'cases_per_100k', 'deaths_per_100k', 'fully_vaccinated',
+    #     'Population_density'
+    # ]]
     return df
 
 
-#df = load_data_google_bucket()
+df = load_data_google_bucket()
 
 
 @cache.memoize(timeout=TIMEOUT)
@@ -209,23 +209,23 @@ def render_page_content(pathname):
                         className='mb-4 mt-2'),
                     dbc.Row([
                         dbc.Col(html.Div([
-                            html.P("Pollutants:"),
+                            html.P("Pollutants (annual Mean):"),
                             dcc.RadioItems(
                                 id='pollutant',
                                 options=[{
-                                    'label': 'NO annualMean',
-                                    'value': 'NO_annualMean'
+                                    'label': 'NO',
+                                    'value': 'NO_totMean'
                                 }, {
-                                    'label': 'NO2 annualMean',
-                                    'value': 'NO2_annualMean'
+                                    'label': 'NO2',
+                                    'value': 'NO2_totMean'
                                 }, {
-                                    'label': 'O3 annualMean',
-                                    'value': 'O3_annualMean'
+                                    'label': 'O3',
+                                    'value': 'O3_totMean'
                                 }, {
-                                    'label': 'PM2.5 annualMean',
-                                    'value': 'PM2_5_annualMean'
+                                    'label': 'PM2.5',
+                                    'value': 'PM2_5_totMean'
                                 }],
-                                value='NO_annualMean',
+                                value='NO_totMean',
                                 labelStyle={'display': 'inline-block'},
                                 inputStyle={"margin-left": "20px"}),
                             dcc.Graph(id="choropleth_pollutant")
@@ -442,7 +442,7 @@ def render_page_content(pathname):
 ######pollutant
 @app.callback(Output("choropleth_pollutant", "figure"),
               [Input("pollutant", "value")])
-@cache.memoize(timeout=TIMEOUT)
+#@cache.memoize(timeout=TIMEOUT)
 def make_map_pollutant(pollutants):
     fig_pollutant = px.choropleth_mapbox(
         df,
@@ -452,9 +452,9 @@ def make_map_pollutant(pollutants):
         color=pollutants,
         color_continuous_scale="ylorrd",  #Emrld
         #range_color=(0, np.max(df["cases_per_100k"])),
-        animation_frame='year',
+        #animation_frame='year',
         mapbox_style="carto-positron",
-        zoom=3.8,
+        zoom=4.3,
         center={
             "lat": 51.312801,
             "lon": 9.481544
@@ -462,19 +462,13 @@ def make_map_pollutant(pollutants):
         opacity=0.5,
         #labels={'cases_per_100k': 'cases per 100k'}
     )
-    fig_pollutant.update_layout(margin={
-        "r": 0,
-        "t": 0,
-        "l": 0,
-        "b": 0
-    },
-                                mapbox_accesstoken=token)
+    fig_pollutant.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0}, )
     return fig_pollutant
 
 
 ###covid
 @app.callback(Output("choropleth_covid", "figure"), [Input("covid", "value")])
-@cache.memoize(timeout=TIMEOUT)
+#@cache.memoize(timeout=TIMEOUT)
 def make_map_covid(covids):
 
     if covids == 'cases_per_100k':
@@ -522,26 +516,24 @@ def update_graph(county_selected):
     template = 'plotly'
 
     # Graph for pollutant 1 (NO2)
-    graph_no2 = px.area(dff,
-                        x='year',
-                        y='NO2_annualMean',
-                        title='NO2 (annual mean) [µg/cm3]',
-                        template=template,
-                        height=height,
-                        width=width,
-                        # range_y=[
-                        #     df['NO2_annualMean'].min(),
-                        #     1.1 * df['NO2_annualMean'].max()
-                        # ]
-                        ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
-                                         paper_bgcolor='rgba(0,0,0,0)',
-                                         plot_bgcolor='rgba(0,0,0,0)',
-                                         yaxis=dict(title=None,
-                                                    showgrid=True,
-                                                    showticklabels=True),
-                                         xaxis=dict(title=None,
-                                                    showgrid=False,
-                                                    showticklabels=True))
+    graph_no2 = px.area(
+        dff,
+        x='year',
+        y='NO2_annualMean',
+        title='NO2 (annual mean) [µg/cm3]',
+        template=template,
+        height=height,
+        width=width,
+        # range_y=[
+        #     df['NO2_annualMean'].min(),
+        #     1.1 * df['NO2_annualMean'].max()
+        # ]
+    ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    yaxis=dict(title=None, showgrid=True, showticklabels=True),
+                    xaxis=dict(title=None, showgrid=False,
+                               showticklabels=True))
 
     graph_no2.update_yaxes(
         showline=False,
@@ -551,26 +543,24 @@ def update_graph(county_selected):
         gridcolor='gray')
 
     # Graph for pollutant 2 (NO)
-    graph_no = px.area(dff,
-                       x='year',
-                       y='NO_annualMean',
-                       title='NO (annual mean) [µg/cm3]',
-                       template=template,
-                       height=height,
-                       width=width,
-                    #    range_y=[
-                    #        df['NO_annualMean'].min(),
-                    #        1.1 * df['NO_annualMean'].max()
-                    #    ]
-                       ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
-                                        paper_bgcolor='rgba(0,0,0,0)',
-                                        plot_bgcolor='rgba(0,0,0,0)',
-                                        yaxis=dict(title=None,
-                                                   showgrid=True,
-                                                   showticklabels=True),
-                                        xaxis=dict(title=None,
-                                                   showgrid=False,
-                                                   showticklabels=True))
+    graph_no = px.area(
+        dff,
+        x='year',
+        y='NO_annualMean',
+        title='NO (annual mean) [µg/cm3]',
+        template=template,
+        height=height,
+        width=width,
+        #    range_y=[
+        #        df['NO_annualMean'].min(),
+        #        1.1 * df['NO_annualMean'].max()
+        #    ]
+    ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    yaxis=dict(title=None, showgrid=True, showticklabels=True),
+                    xaxis=dict(title=None, showgrid=False,
+                               showticklabels=True))
     graph_no.update_yaxes(showline=False,
                           linewidth=0.25,
                           matches=None,
@@ -578,26 +568,24 @@ def update_graph(county_selected):
                           gridcolor='gray')
 
     # Graph for pollutant 3 (O3)
-    graph_o3 = px.area(dff,
-                       x='year',
-                       y='O3_annualMean',
-                       title='O3 (annual mean) [µg/cm3]',
-                       template=template,
-                       height=height,
-                       width=width,
-                    #    range_y=[
-                    #        df['O3_annualMean'].min(),
-                    #        1.1 * df['O3_annualMean'].max()
-                    #    ]
-                       ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
-                                        paper_bgcolor='rgba(0,0,0,0)',
-                                        plot_bgcolor='rgba(0,0,0,0)',
-                                        yaxis=dict(title=None,
-                                                   showgrid=True,
-                                                   showticklabels=True),
-                                        xaxis=dict(title=None,
-                                                   showgrid=False,
-                                                   showticklabels=True))
+    graph_o3 = px.area(
+        dff,
+        x='year',
+        y='O3_annualMean',
+        title='O3 (annual mean) [µg/cm3]',
+        template=template,
+        height=height,
+        width=width,
+        #    range_y=[
+        #        df['O3_annualMean'].min(),
+        #        1.1 * df['O3_annualMean'].max()
+        #    ]
+    ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    yaxis=dict(title=None, showgrid=True, showticklabels=True),
+                    xaxis=dict(title=None, showgrid=False,
+                               showticklabels=True))
     graph_o3.update_yaxes(showline=False,
                           linewidth=0.25,
                           matches=None,
@@ -605,26 +593,24 @@ def update_graph(county_selected):
                           gridcolor='gray')
 
     # Graph for pollutant 4 (PM10)
-    graph_pm10 = px.area(dff,
-                         x='year',
-                         y='PM10_annualMean',
-                         title='PM10 (annual mean) [µg/cm3]',
-                         template=template,
-                         height=height,
-                         width=width,
-                        #  range_y=[
-                        #      df['PM10_annualMean'].min(),
-                        #      1.1 * df['PM10_annualMean'].max()
-                        #  ]
-                         ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
-                                          paper_bgcolor='rgba(0,0,0,0)',
-                                          plot_bgcolor='rgba(0,0,0,0)',
-                                          yaxis=dict(title=None,
-                                                     showgrid=True,
-                                                     showticklabels=True),
-                                          xaxis=dict(title=None,
-                                                     showgrid=False,
-                                                     showticklabels=True))
+    graph_pm10 = px.area(
+        dff,
+        x='year',
+        y='PM10_annualMean',
+        title='PM10 (annual mean) [µg/cm3]',
+        template=template,
+        height=height,
+        width=width,
+        #  range_y=[
+        #      df['PM10_annualMean'].min(),
+        #      1.1 * df['PM10_annualMean'].max()
+        #  ]
+    ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    yaxis=dict(title=None, showgrid=True, showticklabels=True),
+                    xaxis=dict(title=None, showgrid=False,
+                               showticklabels=True))
     graph_pm10.update_yaxes(showline=False,
                             linewidth=0.25,
                             matches=None,
@@ -632,26 +618,24 @@ def update_graph(county_selected):
                             gridcolor='gray')
 
     # Graph for pollutant 5 (PM2.5)
-    graph_pm25 = px.area(dff,
-                         x='year',
-                         y='PM2_5_annualMean',
-                         title='PM2.5 (annual mean) [µg/cm3]',
-                         template=template,
-                         height=height,
-                         width=width,
-                        #  range_y=[
-                        #      df['PM2_5_annualMean'].min(),
-                        #      1.1 * df['PM2_5_annualMean'].max()
-                        #  ]
-                         ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
-                                          paper_bgcolor='rgba(0,0,0,0)',
-                                          plot_bgcolor='rgba(0,0,0,0)',
-                                          yaxis=dict(title=None,
-                                                     showgrid=True,
-                                                     showticklabels=True),
-                                          xaxis=dict(title=None,
-                                                     showgrid=False,
-                                                     showticklabels=True))
+    graph_pm25 = px.area(
+        dff,
+        x='year',
+        y='PM2_5_annualMean',
+        title='PM2.5 (annual mean) [µg/cm3]',
+        template=template,
+        height=height,
+        width=width,
+        #  range_y=[
+        #      df['PM2_5_annualMean'].min(),
+        #      1.1 * df['PM2_5_annualMean'].max()
+        #  ]
+    ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    yaxis=dict(title=None, showgrid=True, showticklabels=True),
+                    xaxis=dict(title=None, showgrid=False,
+                               showticklabels=True))
     graph_pm25.update_yaxes(showline=False,
                             linewidth=0.25,
                             matches=None,
@@ -665,4 +649,4 @@ def update_graph(county_selected):
 #     app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8020, debug=True)
+    app.run_server(host='0.0.0.0', port=8070, debug=True)

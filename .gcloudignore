@@ -25,6 +25,7 @@ __pycache__/
 #data/key/*
 
 .vscode
+cache-directory
 
 notebooks
 raw_data
