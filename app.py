@@ -46,7 +46,7 @@ app.config.suppress_callback_exceptions = True
 
 @cache.memoize(timeout=TIMEOUT)
 def load_data():
-    df = pd.read_csv("./lung_pollution/data/covid_pollution_complete.csv")
+    df = pd.read_csv("./lung_pollution/data/last_df.csv")
     df = df[[
         'county_new', 'year', 'NO2_annualMean', 'NO_annualMean',
         'O3_annualMean', 'PM10_annualMean', 'PM2_5_annualMean',
@@ -65,7 +65,7 @@ def load_data_google_bucket():
     ### GCP Storage - - - - - - - - - - - - - - - - - - - - - -
     BUCKET_NAME = 'lungpollution-2021-predictonline'
     ##### Data  - - - - - - - - - - - - - - - - - - - - - - - -
-    BUCKET_TRAIN_DATA_PATH = 'data/covid_pollution_complete.csv'
+    BUCKET_TRAIN_DATA_PATH = 'data/last_df.csv'
 
     df = pd.read_csv(
         f"gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}",  #nrows=1000
