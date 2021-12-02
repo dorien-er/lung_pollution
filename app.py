@@ -1,4 +1,4 @@
-#import plotly.graph_objects as go  # or plotly.express as px
+import plotly.graph_objects as go  # or plotly.express as px
 import dash
 #import dash_core_components as dcc
 from dash import dcc
@@ -17,6 +17,7 @@ import base64
 #from google.cloud import storage
 import requests
 import dash_extensions as de
+import time
 
 ################################################################################
 
@@ -97,13 +98,13 @@ counties = load_geojson()
 
 ############################### IMAGES, GLOBAL VARIABLES #######################
 
-image_filename = './lung_pollution/data/images/introduction.png'  # replace with your own image
+image_filename = './lung_pollution/data/images/intro.png'  # replace with your own image
 encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
 image_filename_2 = './lung_pollution/data/images/under-the-hood.png'  # replace with your own image
 encoded_image_2 = base64.b64encode(open(image_filename_2, 'rb').read())
 
-image_filename_3 = './lung_pollution/data/images/feature-permutation.png'  # replace with your own image
+image_filename_3 = './lung_pollution/data/images/kde.png'  # replace with your own image
 encoded_image_3 = base64.b64encode(open(image_filename_3, 'rb').read())
 
 image_filename_4 = './lung_pollution/data/images/gauge.png'  # replace with your own image
@@ -113,6 +114,12 @@ encoded_image_4 = base64.b64encode(open(image_filename_4, 'rb').read())
 # Lotties: Emil at https://github.com/thedirtyfew/dash-extensions
 url1 = "https://assets7.lottiefiles.com/private_files/lf30_kcwpiswk.json"
 url2 = "https://assets10.lottiefiles.com/packages/lf20_wt7bupjp.json"
+url3 = "https://assets1.lottiefiles.com/packages/lf20_i7y3y8fi.json"
+url4 = "https://assets3.lottiefiles.com/packages/lf20_5szujujo.json"
+url5 = "https://assets10.lottiefiles.com/packages/lf20_9gmlwgi8.json"
+url6 = "https://assets8.lottiefiles.com/packages/lf20_EyJRUV.json"
+url404 = "https://assets9.lottiefiles.com/packages/lf20_hqstn5mm.json"
+
 options_lottie = dict(loop=True,
                autoplay=True,
                rendererSettings=dict(preserveAspectRatio='xMidYMid slice'))
@@ -134,7 +141,7 @@ SIDEBAR_STYLE = {
     "bottom": 0,
     "width": "16rem",
     "padding": "2rem 1rem",
-    "background-color": "#f8f9fa",
+    "background-color": "#D9F6FC",  #BFEAF2
 }
 
 # padding for the page content
@@ -156,19 +163,71 @@ sidebar = html.Div(
                             href="/page-1",
                             active="exact"),
                 dbc.NavLink(
-                    "Behind the Scenes", href="/page-2", active="exact"),
+                    "CoViD-19 Predictor", href="/page-2", active="exact"),
                 dbc.NavLink(
-                    "CoViD-19 Predictor", href="/page-3", active="exact"),
+                    "Behind the Scenes", href="/page-3", active="exact"),
             ],
             vertical=False,
             pills=True,
         ),
+        # dbc.Nav(
+        #     [
+        #         html.Hr(),
+        #         html.P("Who are we?", className="lead"),
+        #         dbc.NavLink("Sara Iside Broggini", url="https://www.linkedin.com/in/sara-iside-broggini/", active="exact"),
+        #         dbc.NavLink("Ana Luiza Curi Christianini",
+        #                     href="/page-1",
+        #                     active="exact"),
+        #         dbc.NavLink("Rifqi Farhan", href="/page-2", active="exact"),
+        #         dbc.NavLink(
+        #             "Dorien Roosen", href="/page-3", active="exact"),
+        #     ],
+        #     vertical=False,
+        #     pills=True,
+        # ),
         html.Hr(),
         html.P("Who are we?", className="lead"),
-        html.P("Sara Iside Broggini", className="lead-1"),
-        html.P("Ana Luiza Curi Christianini", className="lead-1"),
-        html.P("Rifqi Farhan", className="lead-1"),
-        html.P("Dorien Roosen", className="lead-1"),
+        #html.P("Sara Iside Broggini", className="lead-1"),
+        html.A("Sara Iside Broggini",
+               href='https://www.linkedin.com/in/sara-iside-broggini/',
+               target="_blank",
+               style={
+                   "color": "black",
+                   "text-decoration": "none"
+               }),
+        html.Br(),
+        html.Br(),
+        html.
+        A("Ana Luiza Curi Christianini",
+          href=
+          'https://www.linkedin.com/in/ana-luiza-curi-christianini-92666b29/',
+          target="_blank",
+          style={
+              "color": "black",
+              "text-decoration": "none"
+          }),
+        html.Br(),
+        html.Br(),
+        html.A("Rifqi Farhan",
+               href='https://www.linkedin.com/in/rifqi-farhan/',
+               target="_blank",
+               style={
+                   "color": "black",
+                   "text-decoration": "none"
+               }),
+        html.Br(),
+        html.Br(),
+        html.A("Dorien Roosen",
+               href='https://www.linkedin.com/in/dorien-roosen/',
+               target="_blank",
+               style={
+                   "color": "black",
+                   "text-decoration": "none"
+               }),
+        #html.P("Ana Luiza Curi Christianini", className="lead-1"),
+        #html.P("Rifqi Farhan", className="lead-1"),
+        #html.P("Dorien Roosen", className="lead-1"),
+        de.Lottie(options=options_lottie, width="80%", height="80%", url=url5),
     ],
     style=SIDEBAR_STYLE,
 )
@@ -185,16 +244,23 @@ app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 def render_page_content(pathname):
     if pathname == "/":
         return [
-            dbc.Col([
-                html.H1('Lung Pollution', style={'textAlign': 'left'}),
-                html.P("Welcome to our Data Science Project ",
-                       className="lead"),
-                html.Img(src='data:image/png;base64,{}'.format(
-                    encoded_image.decode()),
-                         width=1024,
-                         height=550)
-            ],
-                    width=12)
+            dbc.Row([
+                dbc.Col([
+                    html.H1('Lung Pollution', style={'textAlign': 'left'}),
+                    html.P("Welcome to our Data Science Project ",
+                           className="lead"),
+                ],
+                        width=4),
+            ]),
+            dbc.Row([
+                dbc.Col([
+                    html.Img(src='data:image/png;base64,{}'.format(
+                        encoded_image.decode()),
+                             width=1024,
+                             height=585),
+                ],
+                        width=8),
+            ])
         ]
 
     elif pathname == "/page-1":
@@ -236,14 +302,17 @@ def render_page_content(pathname):
                                     'label': 'PM2.5',
                                     'value': 'PM2_5_totMean'
                                 }],
-                                value='NO_totMean',
+                                value='PM2_5_totMean',
                                 labelStyle={'display': 'inline-block'},
                                 inputStyle={"margin-left": "20px"}),
-                            dcc.Graph(id="choropleth_pollutant")
+                            dcc.Graph(id="choropleth_pollutant",
+                                      config={
+        'displayModeBar': False
+        })
                         ]),
                                 width=6),
                         dbc.Col(html.Div([
-                            html.P("CoViD-19:"),
+                            html.P("CoViD-19 (since the pandemic started):"),
                             dcc.RadioItems(
                                 id='covid',
                                 options=[{
@@ -256,7 +325,9 @@ def render_page_content(pathname):
                                 value='cases_per_100k',
                                 labelStyle={'display': 'inline-block'},
                                 inputStyle={"margin-left": "20px"}),
-                            dcc.Graph(id="choropleth_covid")
+                            dcc.Graph(id="choropleth_covid", config={
+        'displayModeBar': False
+        })
                         ]),
                                 width=6),
                     ]),
@@ -266,7 +337,7 @@ def render_page_content(pathname):
                             html.H2("", style={'textAlign': 'center'}),
                             dcc.Dropdown(id='county-searchbox',
                                          multi=False,
-                                         value='Aachen Städte',
+                                         value='Berlin',
                                          options=[{
                                              'label': x,
                                              'value': x
@@ -296,20 +367,20 @@ def render_page_content(pathname):
                 fluid=True)
         ]
 
-    elif pathname == "/page-2":
+    elif pathname == "/page-3":
         return [
             dbc.Col([
                 html.H1('Behind the Scenes', style={'textAlign': 'left'}),
-                html.P("Under the Hood", className="lead"),
+                html.Br(),
                 html.Img(src='data:image/png;base64,{}'.format(
                     encoded_image_2.decode()),
                          width=1200,
-                         height=500)
+                         height=672)
             ],
                     width=12)
         ]
 
-    elif pathname == "/page-3":
+    elif pathname == "/page-2":
         return [
             dbc.Container([
                 dbc.Row([
@@ -331,42 +402,52 @@ def render_page_content(pathname):
                                                   width="32%",
                                                   height="32%",
                                                   url=url1)),
+                                    html.Br(),
                                     dbc.CardBody([
-                                        html.I("NO (e.g. 10)"),
+                                        html.
+                                        I("PM2.5 [µg/cm3] (Target in 2030: 5)"
+                                          ),
                                         html.Br(),
                                         dcc.Input(
                                             id='input1',
                                             placeholder='Enter a value...',
                                             type='number',
-                                            value='',
+                                            value='16.65255207',
                                             style={'marginRight': '10px'}),
                                         html.Br(),
-                                        html.I("NO2 (e.g. 20)"),
+                                        html.Br(),
+                                        html.I(
+                                            "O3 [µg/cm3] Target in 2030: 40"),
                                         html.Br(),
                                         dcc.Input(
                                             id='input2',
                                             placeholder='Enter a value...',
                                             type='number',
-                                            value='',
+                                            value='49.340399',
                                             style={'marginRight': '10px'}),
                                         html.Br(),
-                                        html.I("O3 (e.g. 50)"),
+                                        html.Br(),
+                                        html.
+                                        I("NO2 [µg/cm3] (Target in 2030: 10)"),
                                         html.Br(),
                                         dcc.Input(
                                             id='input3',
                                             placeholder='Enter a value...',
                                             type='number',
-                                            value='',
+                                            value='20.026733',
                                             style={'marginRight': '10px'}),
                                         html.Br(),
-                                        html.I("PM2.5 (e.g. 15)"),
+                                        html.Br(),
+                                        html.
+                                        I("NO [µg/cm3] (Target in 2030: 10)"),
                                         html.Br(),
                                         dcc.Input(
                                             id='input4',
                                             placeholder='Enter a value...',
                                             type='number',
-                                            value='',
+                                            value='20.7315438',
                                             style={'marginRight': '10px'}),
+                                        html.Br(),
                                         html.Br(),
                                     ],
                                                  style={'textAlign': 'center'
@@ -379,18 +460,16 @@ def render_page_content(pathname):
                                 outline=
                                 False,  # True = remove the block colors from the background and header
                                 className="mt-3"),
-
                             dbc.Card(
                                 [
                                     dbc.CardBody([
-                                        html.I(
-                                            "Vaccination Rate (e.g. 0.688)"),
+                                        html.I("Vaccination Rate"),
                                         html.Br(),
                                         dcc.Input(
                                             id='input6',
                                             placeholder='Enter a value...',
                                             type='number',
-                                            value='',
+                                            value='0.688',
                                             style={'marginRight': '10px'}),
                                         html.Br(),
                                     ],
@@ -404,17 +483,17 @@ def render_page_content(pathname):
                                 outline=
                                 False,  # True = remove the block colors from the background and header
                                 className="mt-3"),
-
                             dbc.Card(
                                 [
                                     dbc.CardBody([
-                                        html.I("Population (e.g. 290)"),
+                                        html.I(
+                                            "Population Density [people/km2]"),
                                         html.Br(),
                                         dcc.Input(
                                             id='input5',
                                             placeholder='Enter a value...',
                                             type='number',
-                                            value='',
+                                            value='290.00534',
                                             style={'marginRight': '10px'}),
                                         html.Br(),
                                     ],
@@ -422,15 +501,14 @@ def render_page_content(pathname):
                                                         }),
                                 ],
                                 color=
-                                "warning",  # https://bootswatch.com/default/ for more card colors
+                                "#f79952",  # https://bootswatch.com/default/ for more card colors
                                 inverse=
                                 True,  # change color of text (black or white)
                                 outline=
                                 False,  # True = remove the block colors from the background and header
                                 className="mt-3"),
                         ],
-                        width=3),
-
+                        width=4),
                     dbc.Col(
                         [
                             dbc.Card(
@@ -440,54 +518,63 @@ def render_page_content(pathname):
                                                   width="20%",
                                                   height="5%",
                                                   url=url2)),
-                                    dbc.CardBody([
-                                        html.I("Prediction"),
-                                        html.Br(),
-                                        html.H1(' ',
-                                                style={'textAlign': 'left'}),
-                                        html.Div(id="number-out"),
-                                    ],
-                                                 style={'textAlign': 'center'
-                                                        }),
+                                    dbc.CardBody(
+                                        [
+                                            html.I("Number of cases per 100k"),
+                                            # html.Br(),
+                                            # html.H1(' ',
+                                            #         style={'textAlign': 'left'}),
+                                            # html.Div(id="number-out",
+                                            #          style={'fontSize': 60}),
+                                            dcc.Graph(id="num_cases",
+                                                      config={
+                                                          'displayModeBar':
+                                                          False
+                                                      })
+                                        ],
+                                        style={
+                                            'textAlign': 'center',
+                                        }),
                                 ],
                                 color=
-                                "danger",  # https://bootswatch.com/default/ for more card colors
+                                "#296073",  # https://bootswatch.com/default/ for more card colors
                                 inverse=
                                 True,  # change color of text (black or white)
                                 outline=
                                 False,  # True = remove the block colors from the background and header
                                 className="mt-3"),
                             #html.H1('Under the Hood', style={'textAlign': 'left'}),
-                            html.P(
-                                "Relative Importance of CoViD-19 Modulators ",
-                                className="lead"),
+                            html.Br(),
                             html.Img(src='data:image/png;base64,{}'.format(
                                 encoded_image_3.decode()),
-                                     width=450,
-                                     height=350)
+                                     width=660,
+                                     height=320),
+                            html.P("Different Scenarios of CoViD-19 Cases",
+                                   className="lead",
+                                   style={'textAlign': 'center'}),
                         ],
-                        width=5),
+                        width=6),
                 ]),
                 dbc.Row([
-                    dbc.Col(
-                        [
-
-                        ],
-                        width=3),
+                    dbc.Col([], width=3),
                 ]),
             ])
         ]
 
     # If the user tries to reach a different page, return a 404 message
-    return dbc.Jumbotron([
-        html.H1("404: Not found", className="text-danger"),
-        html.Hr(),
-        html.P(f"The pathname {pathname} was not recognised..."),
+    return dbc.Row([
+        dbc.Col([
+            de.Lottie(options=options_lottie,
+                      width="100%",
+                      height="100%",
+                      url=url404)
+        ], width=12)
     ])
 
 ########################### Inputs ###########################################
 @app.callback(
-    Output("number-out", "children"),
+    #Output("number-out", "children"),
+    Output("num_cases", "figure"),
     Input("input1", "value"),
     Input("input2", "value"),
     Input("input3", "value"),
@@ -495,10 +582,10 @@ def render_page_content(pathname):
     Input("input5", "value"),
     Input("input6", "value"),
 )
-def number_render(NO, NO2, O3, PM2_5, density, vax):
-    if NO == '' or NO2 == '' or O3 == '' or PM2_5 == '' or density == '' or vax == '':
-        pred = ''
-        return "Number of Cases: {}".format(pred)
+def number_render(PM2_5, O3, NO2, NO, density, vax):
+    if NO == None or NO2 == None or O3 == None or PM2_5 == None or density == None or vax == None:
+        time.sleep(10)
+
     else:
         NO =float(NO)
         NO2 = float(NO2)
@@ -514,9 +601,32 @@ def number_render(NO, NO2, O3, PM2_5, density, vax):
 
         prediction = response.json()
 
-        pred = round(prediction['prediction'], 2)
+        pred = int(prediction['prediction'])
 
-        return "Number of cases: {}".format(pred)
+    fig = go.Figure(
+        go.Indicator(mode="number+delta",
+                        value=pred,
+                        number={
+                            'prefix': "",
+                            "font": {
+                                "size": 50
+                            }
+                        },
+                        delta={
+                            'position': "bottom",
+                            'reference': 5803
+                        },
+                        domain={
+                            "x": [0, 1],
+                            "y": [0, 1]
+                        }))
+    fig.update_layout(
+        paper_bgcolor='rgba(0,0,0,0)',
+        plot_bgcolor='rgba(0,0,0,0)',
+        font={'color': "white"},
+        height=100,
+    )
+    return fig
 
 ######pollutant
 @app.callback(Output("choropleth_pollutant", "figure"),
@@ -546,9 +656,10 @@ def make_map_pollutant(pollutants):
         featureidkey="properties.NAME_3",
         color=pollutants,
         color_continuous_scale="ylorrd",  #Emrld, ylorrd
+        color_continuous_midpoint=None,
         #range_color=(0, np.max(df["cases_per_100k"])),
         #animation_frame='year',
-        mapbox_style="carto-positron",
+        mapbox_style="white-bg",
         zoom=4.5,
         center={
             "lat": 51.312801,
@@ -579,9 +690,10 @@ def make_map_covid(covids):
         featureidkey="properties.NAME_3",
         color=covids,
         color_continuous_scale=color_scale,
+        color_continuous_midpoint=None,
         #range_color=(0, np.max(df["cases_per_100k"])),
         #animation_frame='year',
-        mapbox_style="carto-positron",
+        mapbox_style="white-bg",
         zoom=4.5,
         center={
             "lat": 51.312801,
