@@ -25,17 +25,11 @@ __pycache__/
 #data/key/*
 
 .vscode
-cache-directory
+#cache-directory
 
 notebooks
 raw_data
 Dockerfile
-lung_pollution/data/images #exclude
-lung_pollution/data/covid_pollution_clean.csv
 lung_pollution/data/covid_pollution_clean02.csv
-lung_pollution/data/covid_pollution_json_rifqi.csv
-lung_pollution/data/feature_permutation.csv
 lung_pollution/data/final_all_counties.csv
-lung_pollution/data/jsonmap.csv
-lung_pollution/main-backup.py
 lung_pollution/score_list.csv

@@ -15,6 +15,8 @@ from flask_caching import Cache
 #import os
 import base64
 #from google.cloud import storage
+import requests
+import dash_extensions as de
 
 ################################################################################
 
@@ -98,7 +100,7 @@ counties = load_geojson()
 image_filename = './lung_pollution/data/images/introduction.png'  # replace with your own image
 encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
-image_filename_2 = './lung_pollution/data/images/model-overview.png'  # replace with your own image
+image_filename_2 = './lung_pollution/data/images/under-the-hood.png'  # replace with your own image
 encoded_image_2 = base64.b64encode(open(image_filename_2, 'rb').read())
 
 image_filename_3 = './lung_pollution/data/images/feature-permutation.png'  # replace with your own image
@@ -107,12 +109,20 @@ encoded_image_3 = base64.b64encode(open(image_filename_3, 'rb').read())
 image_filename_4 = './lung_pollution/data/images/gauge.png'  # replace with your own image
 encoded_image_4 = base64.b64encode(open(image_filename_4, 'rb').read())
 
+# -------------------------- LOTTIE GIFs LOADING FUNCTIONS ---------------------------- #
+# Lotties: Emil at https://github.com/thedirtyfew/dash-extensions
+url1 = "https://assets7.lottiefiles.com/private_files/lf30_kcwpiswk.json"
+url2 = "https://assets10.lottiefiles.com/packages/lf20_wt7bupjp.json"
+options_lottie = dict(loop=True,
+               autoplay=True,
+               rendererSettings=dict(preserveAspectRatio='xMidYMid slice'))
+
 # pollutants = [
 #     'NO_annualMean', 'NO2_annualMean', 'O3_annualMean', 'PM2_5_annualMean'
 # ]
 # covids = ['cases_per_100k', 'deaths_per_100k']
 
-token = open('./lung_pollution/data/.mapbox_token').read()
+#token = open('./lung_pollution/data/.mapbox_token').read()
 
 ################################ SIDEBAR SETTING ###############################
 
@@ -146,8 +156,9 @@ sidebar = html.Div(
                             href="/page-1",
                             active="exact"),
                 dbc.NavLink(
-                    "CoViD-19 Predictor", href="/page-2", active="exact"),
-                dbc.NavLink("Under the Hood", href="/page-3", active="exact"),
+                    "Behind the Scenes", href="/page-2", active="exact"),
+                dbc.NavLink(
+                    "CoViD-19 Predictor", href="/page-3", active="exact"),
             ],
             vertical=False,
             pills=True,
@@ -209,7 +220,7 @@ def render_page_content(pathname):
                         className='mb-4 mt-2'),
                     dbc.Row([
                         dbc.Col(html.Div([
-                            html.P("Pollutants (annual Mean):"),
+                            html.P("Pollutants:"),
                             dcc.RadioItems(
                                 id='pollutant',
                                 options=[{
@@ -287,148 +298,184 @@ def render_page_content(pathname):
 
     elif pathname == "/page-2":
         return [
-            dbc.Row([
-                dbc.Col([
-                    html.H1('CoViD-19 Predictor', style={'textAlign': 'left'}),
-                    html.P("It's time to make a prediction!",
-                           className="lead"),
-                ],
-                        width=12),
-                dbc.Col([
-                    html.I("Input: NO"),
-                    html.Br(),
-                    dcc.Input(id='input1',
-                              placeholder='Enter a value...',
-                              type='number',
-                              value='',
-                              style={'marginRight': '10px'})
-                ],
-                        width=3),
-                dbc.Col([
-                    html.I("Input: NO2"),
-                    html.Br(),
-                    dcc.Input(id='input2',
-                              placeholder='Enter a value...',
-                              type='number',
-                              value='',
-                              style={'marginRight': '10px'})
-                ],
-                        width=3),
-                dbc.Col([
-                    html.I("Input: O3"),
-                    html.Br(),
-                    dcc.Input(id='input3',
-                              placeholder='Enter a value...',
-                              type='number',
-                              value='',
-                              style={'marginRight': '10px'})
-                ],
-                        width=3),
-            ]),
-            dbc.Row([
-                dbc.Col(
-                    [
-                        html.H1(' ', style={'textAlign': 'left'}),
-                        #html.P(" ", className="lead"),
-                    ],
-                    width=12),
-            ]),
-            dbc.Row([
-                dbc.Col([
-                    html.I("Input: PM2.5"),
-                    html.Br(),
-                    dcc.Input(id='input4',
-                              placeholder='Enter a value...',
-                              type='number',
-                              value='',
-                              style={'marginRight': '10px'})
-                ],
-                        width=3),
-                dbc.Col([
-                    html.I("Input: Population Density"),
-                    html.Br(),
-                    dcc.Input(id='input5',
-                              placeholder='Enter a value...',
-                              type='number',
-                              value='',
-                              style={'marginRight': '10px'})
-                ],
-                        width=3),
-                dbc.Col([
-                    html.I("Input: Vaccination Rate"),
-                    html.Br(),
-                    dcc.Input(id='input6',
-                              placeholder='Enter a value...',
-                              type='number',
-                              value='',
-                              style={'marginRight': '10px'})
-                ],
-                        width=3),
-            ]),
-            dbc.Row([
-                dbc.Col(
-                    [
-                        html.H1(' ', style={'textAlign': 'left'}),
-                        #html.P(" ", className="lead"),
-                    ],
-                    width=12),
-            ]),
-            dbc.Row([
-                dbc.Col([], width=3),
-                dbc.Col(
-                    [
-                        #html.Div(dcc.Input(id='input-on-submit', type='text')),
-                        html.Br(),
-                        html.Button('Predict', id='submit-val', n_clicks=0),
-                        # html.Div(id='container-button-basic',
-                        #          children='Press Predict'),
-                        html.Br(),
-                    ],
-                    width=3),
-                #dbc.Col([], width=3),
-            ]),
-            dbc.Row([
-                dbc.Col(
-                    [
-                        html.P('Output: CoViD-19 Cases',
-                               style={'textAlign': 'centre'},
-                               className="lead"),
-                        #html.P("Feature Permutation ", className="lead"),
-                        html.Img(src='data:image/png;base64,{}'.format(
-                            encoded_image_4.decode()),
-                                 width=615,
-                                 height=308)
-                    ],
-                    width=6),
-                dbc.Col(
-                    [
-                        #html.H1('Under the Hood', style={'textAlign': 'left'}),
-                        html.P("Relative Importance of CoViD-19 Modulators ",
-                               className="lead"),
-                        html.Img(src='data:image/png;base64,{}'.format(
-                            encoded_image_3.decode()),
-                                 width=450,
-                                 height=350)
-                    ],
-                    width=4)
-                #dbc.Col(html.Div(dcc.Graph(id='graph_no')), width=4),
-                #dbc.Col(html.Div(dcc.Graph(id='graph_o3')), width=4),
-                #dbc.Col(html.Div(dcc.Graph(figure=graph_pm10)), width=2),
-                #dbc.Col(html.Div(dcc.Graph(figure=graph_pm25)), width=2),
-            ]),
+            dbc.Col([
+                html.H1('Behind the Scenes', style={'textAlign': 'left'}),
+                html.P("Under the Hood", className="lead"),
+                html.Img(src='data:image/png;base64,{}'.format(
+                    encoded_image_2.decode()),
+                         width=1200,
+                         height=500)
+            ],
+                    width=12)
         ]
 
     elif pathname == "/page-3":
         return [
-            dbc.Col([
-                html.H1('Under the Hood', style={'textAlign': 'left'}),
-                html.P("Model Overview ", className="lead"),
-                html.Img(src='data:image/png;base64,{}'.format(
-                    encoded_image_2.decode()),
-                         width=1024,
-                         height=550)
-            ],
-                    width=12)
+            dbc.Container([
+                dbc.Row([
+                    dbc.Col([
+                        html.H1('CoViD-19 Predictor',
+                                style={'textAlign': 'left'}),
+                        html.P("It's time to make a prediction!",
+                               className="lead"),
+                    ],
+                            width=12),
+                ]),
+                dbc.Row([
+                    dbc.Col(
+                        [
+                            dbc.Card(
+                                [
+                                    dbc.CardHeader(
+                                        de.Lottie(options=options_lottie,
+                                                  width="32%",
+                                                  height="32%",
+                                                  url=url1)),
+                                    dbc.CardBody([
+                                        html.I("NO (e.g. 10)"),
+                                        html.Br(),
+                                        dcc.Input(
+                                            id='input1',
+                                            placeholder='Enter a value...',
+                                            type='number',
+                                            value='',
+                                            style={'marginRight': '10px'}),
+                                        html.Br(),
+                                        html.I("NO2 (e.g. 20)"),
+                                        html.Br(),
+                                        dcc.Input(
+                                            id='input2',
+                                            placeholder='Enter a value...',
+                                            type='number',
+                                            value='',
+                                            style={'marginRight': '10px'}),
+                                        html.Br(),
+                                        html.I("O3 (e.g. 50)"),
+                                        html.Br(),
+                                        dcc.Input(
+                                            id='input3',
+                                            placeholder='Enter a value...',
+                                            type='number',
+                                            value='',
+                                            style={'marginRight': '10px'}),
+                                        html.Br(),
+                                        html.I("PM2.5 (e.g. 15)"),
+                                        html.Br(),
+                                        dcc.Input(
+                                            id='input4',
+                                            placeholder='Enter a value...',
+                                            type='number',
+                                            value='',
+                                            style={'marginRight': '10px'}),
+                                        html.Br(),
+                                    ],
+                                                 style={'textAlign': 'center'
+                                                        }),
+                                ],
+                                color=
+                                "success",  # https://bootswatch.com/default/ for more card colors
+                                inverse=
+                                True,  # change color of text (black or white)
+                                outline=
+                                False,  # True = remove the block colors from the background and header
+                                className="mt-3"),
+
+                            dbc.Card(
+                                [
+                                    dbc.CardBody([
+                                        html.I(
+                                            "Vaccination Rate (e.g. 0.688)"),
+                                        html.Br(),
+                                        dcc.Input(
+                                            id='input6',
+                                            placeholder='Enter a value...',
+                                            type='number',
+                                            value='',
+                                            style={'marginRight': '10px'}),
+                                        html.Br(),
+                                    ],
+                                                 style={'textAlign': 'center'
+                                                        }),
+                                ],
+                                color=
+                                "info",  # https://bootswatch.com/default/ for more card colors
+                                inverse=
+                                True,  # change color of text (black or white)
+                                outline=
+                                False,  # True = remove the block colors from the background and header
+                                className="mt-3"),
+
+                            dbc.Card(
+                                [
+                                    dbc.CardBody([
+                                        html.I("Population (e.g. 290)"),
+                                        html.Br(),
+                                        dcc.Input(
+                                            id='input5',
+                                            placeholder='Enter a value...',
+                                            type='number',
+                                            value='',
+                                            style={'marginRight': '10px'}),
+                                        html.Br(),
+                                    ],
+                                                 style={'textAlign': 'center'
+                                                        }),
+                                ],
+                                color=
+                                "warning",  # https://bootswatch.com/default/ for more card colors
+                                inverse=
+                                True,  # change color of text (black or white)
+                                outline=
+                                False,  # True = remove the block colors from the background and header
+                                className="mt-3"),
+                        ],
+                        width=3),
+
+                    dbc.Col(
+                        [
+                            dbc.Card(
+                                [
+                                    dbc.CardHeader(
+                                        de.Lottie(options=options_lottie,
+                                                  width="20%",
+                                                  height="5%",
+                                                  url=url2)),
+                                    dbc.CardBody([
+                                        html.I("Prediction"),
+                                        html.Br(),
+                                        html.H1(' ',
+                                                style={'textAlign': 'left'}),
+                                        html.Div(id="number-out"),
+                                    ],
+                                                 style={'textAlign': 'center'
+                                                        }),
+                                ],
+                                color=
+                                "danger",  # https://bootswatch.com/default/ for more card colors
+                                inverse=
+                                True,  # change color of text (black or white)
+                                outline=
+                                False,  # True = remove the block colors from the background and header
+                                className="mt-3"),
+                            #html.H1('Under the Hood', style={'textAlign': 'left'}),
+                            html.P(
+                                "Relative Importance of CoViD-19 Modulators ",
+                                className="lead"),
+                            html.Img(src='data:image/png;base64,{}'.format(
+                                encoded_image_3.decode()),
+                                     width=450,
+                                     height=350)
+                        ],
+                        width=5),
+                ]),
+                dbc.Row([
+                    dbc.Col(
+                        [
+
+                        ],
+                        width=3),
+                ]),
+            ])
         ]
 
     # If the user tries to reach a different page, return a 404 message
@@ -438,30 +485,77 @@ def render_page_content(pathname):
         html.P(f"The pathname {pathname} was not recognised..."),
     ])
 
+########################### Inputs ###########################################
+@app.callback(
+    Output("number-out", "children"),
+    Input("input1", "value"),
+    Input("input2", "value"),
+    Input("input3", "value"),
+    Input("input4", "value"),
+    Input("input5", "value"),
+    Input("input6", "value"),
+)
+def number_render(NO, NO2, O3, PM2_5, density, vax):
+    if NO == '' or NO2 == '' or O3 == '' or PM2_5 == '' or density == '' or vax == '':
+        pred = ''
+        return "Number of Cases: {}".format(pred)
+    else:
+        NO =float(NO)
+        NO2 = float(NO2)
+        O3 = float(O3)
+        PM2_5 = float(PM2_5)
+        density = float(density)
+        vax = float(vax)
+        url = 'https://lung-pollution-mkutgm5w2a-ew.a.run.app/predict'
+
+        params = dict(NO=NO, NO2=NO2, PM2_5=PM2_5, O3=O3, vax=vax, density=density)
+
+        response = requests.get(url, params=params)
+
+        prediction = response.json()
+
+        pred = round(prediction['prediction'], 2)
+
+        return "Number of cases: {}".format(pred)
 
 ######pollutant
 @app.callback(Output("choropleth_pollutant", "figure"),
               [Input("pollutant", "value")])
 #@cache.memoize(timeout=TIMEOUT)
 def make_map_pollutant(pollutants):
+    if pollutants == 'NO_totMean':
+        #color_scale = "greys"
+        labels = {'NO_totMean': 'NO'}
+
+    elif pollutants == 'NO2_totMean':
+        #color_scale = "amp"
+        labels = {'NO2_totMean': 'NO2'}
+
+    elif pollutants == 'O3_totMean':
+        #color_scale = "amp"
+        labels = {'O3_totMean': 'O3'}
+
+    elif pollutants == 'PM2_5_totMean':
+        #color_scale = "amp"
+        labels = {'PM2_5_totMean': 'PM2.5'}
+
     fig_pollutant = px.choropleth_mapbox(
         df,
         geojson=counties,
         locations='county_new',
         featureidkey="properties.NAME_3",
         color=pollutants,
-        color_continuous_scale="ylorrd",  #Emrld
+        color_continuous_scale="ylorrd",  #Emrld, ylorrd
         #range_color=(0, np.max(df["cases_per_100k"])),
         #animation_frame='year',
         mapbox_style="carto-positron",
-        zoom=4.3,
+        zoom=4.5,
         center={
             "lat": 51.312801,
             "lon": 9.481544
         },
         opacity=0.5,
-        #labels={'cases_per_100k': 'cases per 100k'}
-    )
+        labels=labels)
     fig_pollutant.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0}, )
     return fig_pollutant
 
@@ -473,8 +567,10 @@ def make_map_covid(covids):
 
     if covids == 'cases_per_100k':
         color_scale = "greys"
+        labels = {'cases_per_100k': 'cases per 100k'}
     elif covids == 'deaths_per_100k':
         color_scale = "amp"
+        labels = {'deaths_per_100k': 'deaths per 100k'}
 
     fig_covid = px.choropleth_mapbox(
         df,
@@ -486,13 +582,13 @@ def make_map_covid(covids):
         #range_color=(0, np.max(df["cases_per_100k"])),
         #animation_frame='year',
         mapbox_style="carto-positron",
-        zoom=4.3,
+        zoom=4.5,
         center={
             "lat": 51.312801,
             "lon": 9.481544
         },
         opacity=0.5,
-        #labels={'cases_per_100k': 'cases per 100k'}
+        labels=labels
     )
     fig_covid.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
     return fig_covid
