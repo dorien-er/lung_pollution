@@ -605,21 +605,27 @@ def number_render(PM2_5, O3, NO2, NO, density, vax):
 
     fig = go.Figure(
         go.Indicator(mode="number+delta",
-                        value=pred,
-                        number={
-                            'prefix': "",
-                            "font": {
-                                "size": 50
-                            }
-                        },
-                        delta={
-                            'position': "bottom",
-                            'reference': 5803
-                        },
-                        domain={
-                            "x": [0, 1],
-                            "y": [0, 1]
-                        }))
+                     value=pred,
+                     number={
+                         'prefix': "",
+                         "font": {
+                             "size": 50
+                         }
+                     },
+                     delta={
+                         'position': "bottom",
+                         'reference': 5803,
+                         'increasing': {
+                             "color": "red"
+                         },
+                         'decreasing': {
+                             "color": "#4CCF3E"
+                         },
+                     },
+                     domain={
+                         "x": [0, 1],
+                         "y": [0, 1]
+                     }))
     fig.update_layout(
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
@@ -732,6 +738,7 @@ def update_graph(county_selected):
         template=template,
         height=height,
         width=width,
+        line_shape='spline',
         # range_y=[
         #     df['NO2_annualMean'].min(),
         #     1.1 * df['NO2_annualMean'].max()
@@ -759,6 +766,7 @@ def update_graph(county_selected):
         template=template,
         height=height,
         width=width,
+        line_shape='spline',
         #    range_y=[
         #        df['NO_annualMean'].min(),
         #        1.1 * df['NO_annualMean'].max()
@@ -784,6 +792,7 @@ def update_graph(county_selected):
         template=template,
         height=height,
         width=width,
+        line_shape='spline',
         #    range_y=[
         #        df['O3_annualMean'].min(),
         #        1.1 * df['O3_annualMean'].max()
@@ -809,6 +818,7 @@ def update_graph(county_selected):
         template=template,
         height=height,
         width=width,
+        line_shape='spline',
         #  range_y=[
         #      df['PM10_annualMean'].min(),
         #      1.1 * df['PM10_annualMean'].max()
@@ -834,6 +844,7 @@ def update_graph(county_selected):
         template=template,
         height=height,
         width=width,
+        line_shape='spline',
         #  range_y=[
         #      df['PM2_5_annualMean'].min(),
         #      1.1 * df['PM2_5_annualMean'].max()
