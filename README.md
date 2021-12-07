@@ -1,4 +1,11 @@
-# Data analysis
+# Lung Pollution
+
+## Table of contents
+* [Data analysis](#data-analysis)
+* [Startup the project](#startup-the-project)
+* [Install](#install)
+*
+## Data-analysis
 - Document here the project: lung_pollution
 - Description: Project Description
 - Data Source:
@@ -6,7 +13,7 @@
 
 Please document the project the better you can.
 
-# Startup the project
+## Startup the project
 
 The initial setup.
 
@@ -44,7 +51,7 @@ cd tmp
 lung_pollution-run
 ```
 
-# Install
+## Install
 
 Go to `https://github.com/{group}/lung_pollution` to see the project, manage issues,
 setup you ssh public key, ...
