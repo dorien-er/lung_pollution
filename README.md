@@ -13,9 +13,9 @@ In this project, we'll analyze the impact of air pollutions on CoViD-19 cases in
 
 ## The looks of the website
 Check out how the website looks like, here is the link [lung-pollution](https://rising-method-332408.ew.r.appspot.com/)
-<p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/rifqi-frontend-15/lung_pollution/data/images/intro.gif" width="768"  />
-<p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/rifqi-frontend-15/lung_pollution/data/images/dataviz.gif" width="768"  />
-<p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/rifqi-frontend-15/lung_pollution/data/images/predictor.gif" width="768"  />
+<p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/master/lung_pollution/data/images/intro.gif" width="768"  />
+<p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/master/lung_pollution/data/images/dataviz.gif" width="768"  />
+<p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/master/lung_pollution/data/images/predictor.gif" width="768"  />
 
 ## Data analysis
 - Document here the project: lung_pollution
