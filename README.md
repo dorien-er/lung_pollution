@@ -5,7 +5,7 @@
 * [Startup the project](#startup-the-project)
 * [Install](#install)
 *
-## Data-analysis
+## Data analysis
 - Document here the project: lung_pollution
 - Description: Project Description
 - Data Source:
