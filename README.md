@@ -1,4 +1,23 @@
-# Data analysis
+# Lung Pollution
+Analyzing the impact of air pollutions, vaccination rate and population density on CoViD-19 cases in germany
+
+## Table of contents
+* [About](#about)
+* [The looks of the website](#the-looks-of-the-website)
+* [Data analysis](#data-analysis)
+* [Startup the project](#startup-the-project)
+* [Install](#install)
+
+## About
+In this project, we'll analyze the impact of air pollutions on CoViD-19 cases in germany, and also to check if there is also connection between the vaccination rate, population density of each county and CoViD-19 cases.
+
+## The looks of the website
+Check out how the website looks like, here is the link [lung-pollution](https://rising-method-332408.ew.r.appspot.com/)
+<p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/rifqi-frontend-15/lung_pollution/data/images/intro.gif" width="768"  />
+<p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/rifqi-frontend-15/lung_pollution/data/images/dataviz.gif" width="768"  />
+<p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/rifqi-frontend-15/lung_pollution/data/images/predictor.gif" width="768"  />
+
+## Data analysis
 - Document here the project: lung_pollution
 - Description: Project Description
 - Data Source:
@@ -6,7 +25,7 @@
 
 Please document the project the better you can.
 
-# Startup the project
+## Startup the project
 
 The initial setup.
 
@@ -44,7 +63,7 @@ cd tmp
 lung_pollution-run
 ```
 
-# Install
+## Install
 
 Go to `https://github.com/{group}/lung_pollution` to see the project, manage issues,
 setup you ssh public key, ...
