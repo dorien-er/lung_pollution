@@ -18,11 +18,11 @@ Check out our website: [lung-pollution](https://rising-method-332408.ew.r.appspo
 <p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/master/lung_pollution/data/images/predictor.gif" width="768"  />
 
 ## Data analysis
-- Datasets and sources:
-  -- Air pollution at the German county level, from 2010 - 2019 (Caseiro, A., von Schneidemesser, E. APExpose_DE, an air quality exposure dataset for Germany 2010–2019. Sci Data 8, 287 (2021). https://doi.org/10.1038/s41597-021-01068-6)
-  --  CoViD-19 statistics at the German county level (https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/917fc37a709542548cc3be077a786c17_0/explore?location=51.836196%2C12.460149%2C7.00&showTable=true)
+* Datasets and sources:
+  - Air pollution at the German county level, from 2010 - 2019 (Caseiro, A., von Schneidemesser, E. APExpose_DE, an air quality exposure dataset for Germany 2010–2019. Sci Data 8, 287 (2021). [Link](https://doi.org/10.1038/s41597-021-01068-6)
+  - CoViD-19 statistics at the German county level. [Link](https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/917fc37a709542548cc3be077a786c17_0/explore?location=51.836196%2C12.460149%2C7.00&showTable=true)
 
-- Type of analysis: machine learning using SciKit-Learn, RandomForestRegressor
+* Type of analysis: machine learning using SciKit-Learn, RandomForestRegressor
 
 ## Startup the project
 
