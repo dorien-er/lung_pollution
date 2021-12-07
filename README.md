@@ -1,29 +1,28 @@
 # Lung Pollution
-Analyzing the impact of air pollutions, vaccination rate and population density on CoViD-19 cases in germany
+Assessment of the impact of air pollution, vaccination rate and population density on CoViD-19 cases in Germany.
 
 ## Table of contents
 * [About](#about)
-* [The looks of the website](#the-looks-of-the-website)
+* [The website](#the-website)
 * [Data analysis](#data-analysis)
 * [Startup the project](#startup-the-project)
 * [Install](#install)
 
 ## About
-In this project, we'll analyze the impact of air pollutions on CoViD-19 cases in germany, and also to check if there is also connection between the vaccination rate, population density of each county and CoViD-19 cases.
+In this project, we analyze the impact of air pollution on CoViD-19 cases at the county-level in Germany. We also analyze the impact of  additional disease modulators, such as vaccination rate and population density, on CoViD-19 cases in German counties.
 
-## The looks of the website
-Check out how the website looks like, here is the link [lung-pollution](https://rising-method-332408.ew.r.appspot.com/)
+## The website
+Check out our website: [lung-pollution](https://rising-method-332408.ew.r.appspot.com/)
 <p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/master/lung_pollution/data/images/intro.gif" width="768"  />
 <p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/master/lung_pollution/data/images/dataviz.gif" width="768"  />
 <p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/master/lung_pollution/data/images/predictor.gif" width="768"  />
 
 ## Data analysis
-- Document here the project: lung_pollution
-- Description: Project Description
-- Data Source:
-- Type of analysis:
+- Datasets and sources:
+  -- Air pollution at the German county level, from 2010 - 2019 (Caseiro, A., von Schneidemesser, E. APExpose_DE, an air quality exposure dataset for Germany 2010–2019. Sci Data 8, 287 (2021). https://doi.org/10.1038/s41597-021-01068-6)
+  --  CoViD-19 statistics at the German county level (https://npgeo-corona-npgeo-de.hub.arcgis.com/datasets/917fc37a709542548cc3be077a786c17_0/explore?location=51.836196%2C12.460149%2C7.00&showTable=true)
 
-Please document the project the better you can.
+- Type of analysis: machine learning using SciKit-Learn, RandomForestRegressor
 
 ## Startup the project
 
