@@ -12,7 +12,7 @@ Assessment of the impact of air pollution, vaccination rate and population densi
 In this project, we analyze the impact of air pollution on CoViD-19 cases at the county-level in Germany. We also analyze the impact of  additional disease modulators, such as vaccination rate and population density, on CoViD-19 cases in German counties.
 
 ## The website
-Check out our website: [lung-pollution](https://rising-method-332408.ew.r.appspot.com/)
+Check out our website: [lung-pollution](https://lung-pollution.xyz/)
 <p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/master/lung_pollution/data/images/intro.gif" width="768"  />
 <p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/master/lung_pollution/data/images/dataviz.gif" width="768"  />
 <p align="center"><img src="https://github.com/dorien-er/lung_pollution/blob/master/lung_pollution/data/images/predictor.gif" width="768"  />
