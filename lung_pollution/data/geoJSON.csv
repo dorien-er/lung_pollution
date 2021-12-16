@@ -1,0 +1,435 @@
+﻿,Id,County
+0,0,Oldenburg
+1,1,Osnabrück Städte
+2,2,Osnabrück
+3,3,Vechta
+4,4,Wesermarsch
+5,5,Wilhelmshaven Städte
+6,6,Wittmund
+7,7,Bochum Städte
+8,8,Dortmund Städte
+9,9,Ennepe-Ruhr
+10,10,Hagen Städte
+11,11,Hamm Städte
+12,12,Herne Städte
+13,13,Hochsauerlandkreis
+14,14,Märkischer Kreis
+15,15,Olpe
+16,16,Siegen-Wittgenstein
+17,17,Ostalbkreis
+18,18,Rems-Murr-Kreis
+19,19,Schwäbisch Hall
+20,20,Stuttgart Städte
+21,21,Alb-Donau
+22,22,Biberach
+23,23,Bodensee
+24,24,Ravensburg
+25,25,Reutlingen
+26,26,Sigmaringen
+27,27,Tübingen
+28,28,Ulm Städte
+29,29,Zollernalbkreis
+30,30,Ansbach Städte
+31,31,Ansbach
+32,32,Erlangen-Höchstadt
+33,33,Erlangen Städte
+34,34,Fürth Städte
+35,35,Breisgau-Hochschwarzwald
+36,36,Emmendingen
+37,37,Freiburg
+38,38,Konstanz
+39,39,Lörrach
+40,40,Ortenaukreis
+41,41,Rottweil
+42,42,Schwarzwald-Baar-Kreis
+43,43,Tuttlingen
+44,44,Waldshut
+45,45,Baden-Baden Städte
+46,46,Calw
+47,47,Enz
+48,48,Freudenstadt
+49,49,Heidelberg Städte
+50,50,Karlsruhe Städte
+51,51,Karlsruhe
+52,52,Mannheim Städte
+53,53,Neckar-Odenwald-Kreis
+54,54,Pforzheim Städte
+55,55,Rastatt
+56,56,Rhein-Neckar-Kreis
+57,57,Böblingen
+58,58,Esslingen
+59,59,Göppingen
+60,60,Heidenheim
+61,61,Heilbronn city Städte
+62,62,Heilbronn
+63,63,Hohenlohe
+64,64,Ludwigsburg
+65,65,Main-Tauber
+66,66,Fürth
+67,67,Neustadt-Bad Windsheim
+68,68,Nuremberg Städte
+69,69,Nürnberger Land
+70,70,Roth
+71,71,Schwabach Städte
+72,72,Weißenburg-Gunzenhausen
+73,73,Deggendorf
+74,74,Dingolfing-Landau
+75,75,Freyung-Grafenau
+76,76,Kelheim
+77,77,Landshut Städte
+78,78,Landshut
+79,79,Passau Städte
+80,80,Passau
+81,81,Regen
+82,82,Rottal-Inn
+83,83,Straubing-Bogen
+84,84,Straubing Städte
+85,85,Altötting
+86,86,Bad Tölz-Wolfratshausen
+87,87,Berchtesgadener Land
+88,88,Dachau
+89,89,Ebersberg
+90,90,Eichstätt
+91,91,Erding
+92,92,Freising
+93,93,Fürstenfeldbruck
+94,94,Garmisch-Partenkirchen
+95,95,Ingolstadt Städte
+96,96,Landsberg
+97,97,Miesbach
+98,98,Mühldorf
+99,99,München
+100,100,Munich Städte
+101,101,Neuburg-Schrobenhausen
+102,102,Pfaffenhofen
+103,103,Rosenheim Städte
+104,104,Rosenheim
+105,105,Starnberg
+106,106,Traunstein
+107,107,Weilheim-Schongau
+108,108,Bamberg Städte
+109,109,Bamberg
+110,110,Bayreuth Städte
+111,111,Bayreuth
+112,112,Coburg Städte
+113,113,Coburg
+114,114,Forchheim
+115,115,Hof Städte
+116,116,Hof
+117,117,Kronach
+118,118,Kulmbach
+119,119,Lichtenfels
+120,120,Wunsiedel
+121,121,Amberg-Sulzbach
+122,122,Amberg Städte
+123,123,Cham
+124,124,Neumarkt
+125,125,Neustadt
+126,126,Regensburg Städte
+127,127,Regensburg
+128,128,Schwandorf
+129,129,Tirschenreuth
+130,130,Weiden Städte
+131,131,Aichach-Friedberg
+132,132,Augsburg Städte
+133,133,Augsburg
+134,134,Dillingen
+135,135,Donau-Ries
+136,136,Günzburg
+137,137,Kaufbeuren Städte
+138,138,Kempten Städte
+139,139,Lindau
+140,140,Memmingen Städte
+141,141,Neu-Ulm
+142,142,Oberallgäu
+143,143,Ostallgäu
+144,144,Unterallgäu
+145,145,Aschaffenburg Städte
+146,146,Aschaffenburg
+147,147,Bad Kissingen
+148,148,Haßberge
+149,149,Kitzingen
+150,150,Main-Spessart
+151,151,Miltenberg
+152,152,Rhön-Grabfeld
+153,153,Schweinfurt Städte
+154,154,Schweinfurt
+155,155,Würzburg Städte
+156,156,Würzburg
+157,157,Berlin
+158,158,Barnim
+159,159,Brandenburg an der Havel Städte
+160,160,Cottbus Städte
+161,161,Dahme-Spreewald
+162,162,Elbe-Elster
+163,163,Frankfurt am Oder Städte
+164,164,Havelland
+165,165,Märkisch-Oderland
+166,166,Oberhavel
+167,167,Oberspreewald-Lausitz
+168,168,Oder-Spree
+169,169,Ostprignitz-Ruppin
+170,170,Potsdam-Mittelmark
+171,171,Potsdam Städte
+172,172,Prignitz
+173,173,Spree-Neiße
+174,174,Teltow-Fläming
+175,175,Uckermark
+176,176,Bremen Städte
+177,177,Hamburg Städte
+178,178,Bergstraße
+179,179,Darmstadt-Dieburg
+180,180,Darmstadt Städte
+181,181,Frankfurt am Main Städte
+182,182,Groß-Gerau
+183,183,Hochtaunuskreis
+184,184,Main-Kinzig-Kreis
+185,185,Main-Taunus-Kreis Städte
+186,186,Odenwaldkreis
+187,187,Offenbach am Main Städte
+188,188,Offenbach
+189,189,Rheingau-Taunus-Kreis
+190,190,Wetteraukreis
+191,191,Wiesbaden Städte
+192,192,Gießen
+193,193,Lahn-Dill-Kreis
+194,194,Limburg-Weilburg
+195,195,Marburg-Biedenkopf
+196,196,Vogelsbergkreis
+197,197,Fulda
+198,198,Hersfeld-Rotenburg
+199,199,Kassel Städte
+200,200,Kassel
+201,201,Schwalm-Eder-Kreis
+202,202,Waldeck-Frankenberg
+203,203,Werra-Meißner-Kreis
+204,204,Bad Doberan
+205,205,Demmin
+206,206,Greifswald Städte
+207,207,Güstrow
+208,208,Ludwigslust
+209,209,Mecklenburg-Strelitz
+210,210,Müritz
+211,211,Neubrandenburg Städte
+212,212,Nordvorpommern
+213,213,Nordwestmecklenburg
+214,214,Ostvorpommern
+215,215,Parchim
+216,216,Rostock Städte
+217,217,Rügen
+218,218,Schwerin Städte
+219,219,Stralsund Städte
+220,220,Uecker-Randow
+221,221,Wismar Städte
+222,222,Braunschweig Städte
+223,223,Gifhorn
+224,224,Goslar
+225,225,Göttingen
+226,226,Helmstedt
+227,227,Northeim
+228,228,Osterode
+229,229,Peine
+230,230,Salzgitter Städte
+231,231,Wolfenbüttel
+232,232,Wolfsburg Städte
+233,233,Diepholz
+234,234,Hamelin-Pyrmont
+235,235,Hanover
+236,236,Hildesheim
+237,237,Holzminden
+238,238,Nienburg
+239,239,Schaumburg
+240,240,Celle
+241,241,Cuxhaven
+242,242,Harburg
+243,243,Lüchow-Dannenberg
+244,244,Lüneburg
+245,245,Osterholz
+246,246,Rotenburg
+247,247,Soltau-Fallingbostel
+248,248,Stade
+249,249,Uelzen
+250,250,Verden
+251,251,Ammerland
+252,252,Aurich
+253,253,Cloppenburg
+254,254,Emden Städte
+255,255,Emsland
+256,256,Friesland
+257,257,Grafschaft Bentheim
+258,258,Leer
+259,259,Oldenburg Städte
+260,260,Soest
+261,261,Unna
+262,262,Bielefeld Städte
+263,263,Gütersloh
+264,264,Herford
+265,265,Höxter
+266,266,Lippe
+267,267,Minden-Lübbecke
+268,268,Paderborn
+269,269,Cleves
+270,270,Duisburg Städte
+271,271,Düsseldorf Städte
+272,272,Essen Städte
+273,273,Krefeld Städte
+274,274,Mettmann
+275,275,Mönchengladbach Städte
+276,276,Mülheim Städte
+277,277,Oberhausen Städte
+278,278,Remscheid Städte
+279,279,Rhein-Kreis Neuss
+280,280,Solingen Städte
+281,281,Viersen
+282,282,Wesel
+283,283,Wuppertal Städte
+284,284,Aachen Städte
+285,285,Aachen
+286,286,Bonn Städte
+287,287,Cologne Städte
+288,288,Düren
+289,289,Euskirchen
+290,290,Heinsberg
+291,291,Leverkusen Städte
+292,292,Oberbergischer Kreis
+293,293,Rhein-Erft-Kreis
+294,294,Rhein-Sieg
+295,295,Rheinisch-Bergischer Kreis
+296,296,Borken
+297,297,Bottrop Städte
+298,298,Coesfeld
+299,299,Gelsenkirchen Städte
+300,300,Münster Städte
+301,301,Recklinghausen
+302,302,Steinfurt
+303,303,Warendorf
+304,304,Ahrweiler
+305,305,Altenkirchen
+306,306,Bad Kreuznach
+307,307,Birkenfeld
+308,308,Cochem-Zell
+309,309,Koblenz Coblenz Städte
+310,310,Mayen-Koblenz
+311,311,Neuwied
+312,312,Rhein-Hunsrück
+313,313,Rhein-Lahn
+314,314,Westerwaldkreis
+315,315,Alzey-Worms
+316,316,Bad Dürkheim
+317,317,Donnersbergkreis
+318,318,Frankenthal Städte
+319,319,Germersheim
+320,320,Kaiserslautern Städte
+321,321,Kaiserslautern
+322,322,Kusel
+323,323,Landau Städte
+324,324,Ludwigshafen Städte
+325,325,Mainz-Bingen
+326,326,Mainz Städte
+327,327,Neustadt Städte
+328,328,Rhein-Pfalz-Kreis
+329,329,Speyer Spires Städte
+330,330,Südliche Weinstraße
+331,331,Südwestpfalz
+332,332,Worms Städte
+333,333,Zweibrücken Städte
+334,334,Bernkastel-Wittlich
+335,335,Bitburg-Prüm
+336,336,Trier-Saarburg
+337,337,Trier Städte
+338,338,Vulkaneifel
+339,339,Merzig-Wadern
+340,340,Neunkirchen
+341,341,Saarbrücken Städte
+342,342,Saarlouis
+343,343,Saarpfalz
+344,344,Sankt Wendel
+345,345,Anhalt-Zerbst
+346,346,Bernburg
+347,347,Bitterfeld
+348,348,Dessau Städte
+349,349,Köthen
+350,350,Wittenberg
+351,351,Aschersleben-Staßfurt
+352,352,Burgenlandkreis
+353,353,Halle Städte
+354,354,Mansfelder Land
+355,355,Merseburg-Querfurt
+356,356,Saalkreis
+357,357,Sangerhausen
+358,358,Weißenfels
+359,359,Altmarkkreis Salzwedel
+360,360,Bördekreis
+361,361,Halberstadt
+362,362,Jerichower Land
+363,363,Magdeburg Städte
+364,364,Ohrekreis
+365,365,Quedlinburg
+366,366,Schönebeck
+367,367,Stendal
+368,368,Wernigerode
+369,369,Annaberg
+370,370,Aue-Schwarzenberg
+371,371,Chemnitz Städte
+372,372,Chemnitzer Land
+373,373,Freiberg
+374,374,Mittlerer Erzgebirgskreis
+375,375,Mittweida
+376,376,Plauen Städte
+377,377,Stollberg
+378,378,Vogtlandkreis
+379,379,Zwickau Städte
+380,380,Zwickauer Land
+381,381,Bautzen
+382,382,Dresden Städte
+383,383,Görlitz Städte
+384,384,Kamenz
+385,385,Löbau-Zittau
+386,386,Meißen
+387,387,Niederschlesischer Oberlausitzkreis
+388,388,Riesa-Großenhain
+389,389,Sächsische Schweiz
+390,390,Weißeritzkreis
+391,391,Delitzsch
+392,392,Döbeln
+393,393,Leipzig Städte
+394,394,Leipziger Land
+395,395,Muldentalkreis
+396,396,Torgau-Oschatz
+397,397,Dithmarschen
+398,398,Flensburg Städte
+399,399,Kiel Städte
+400,400,Lauenburg
+401,401,Lübeck Städte
+402,402,Neumünster Städte
+403,403,Nordfriesland
+404,404,Ostholstein
+405,405,Pinneberg
+406,406,Plön
+407,407,Rendsburg-Eckernförde
+408,408,Schleswig-Flensburg
+409,409,Segeberg
+410,410,Steinburg
+411,411,Stormarn
+412,412,Altenburger Land
+413,413,Eichsfeld
+414,414,Erfurt Städte
+415,415,Gera Städte
+416,416,Gotha
+417,417,Greiz
+418,418,Hildburghausen
+419,419,Ilm-Kreis
+420,420,Jena Städte
+421,421,Kyffhäuserkreis
+422,422,Nordhausen
+423,423,Saale-Holzland
+424,424,Saale-Orla
+425,425,Saalfeld-Rudolstadt
+426,426,Schmalkalden-Meiningen
+427,427,Sömmerda
+428,428,Sonneberg
+429,429,Suhl Städte
+430,430,Unstrut-Hainich
+431,431,Wartburgkreis
+432,432,Weimar Städte
+433,433,Weimarer Land
