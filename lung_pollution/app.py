@@ -235,6 +235,7 @@ sidebar = html.Div(
 
 content = html.Div(id="page-content", children=[], style=CONTENT_STYLE)
 
+#design layout
 app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
 
@@ -254,7 +255,7 @@ def render_page_content(pathname):
             ]),
             dbc.Row([
                 dbc.Col([
-                    html.Img(src='data:image/png;base64,{}'.format(
+                    html.Img(src='data:image/png;base64,{}'.format( #loading images, connected to top
                         encoded_image.decode()),
                              width=1024,
                              height=585),
@@ -305,7 +306,7 @@ def render_page_content(pathname):
                                 value='PM2_5_totMean',
                                 labelStyle={'display': 'inline-block'},
                                 inputStyle={"margin-left": "20px"}),
-                            dcc.Graph(id="choropleth_pollutant",
+                            dcc.Graph(id="choropleth_pollutant", #placeholder with an id (copy)
                                       config={
         'displayModeBar': False
         })
@@ -635,9 +636,9 @@ def number_render(PM2_5, O3, NO2, NO, density, vax):
     return fig
 
 ######pollutant
-@app.callback(Output("choropleth_pollutant", "figure"),
+@app.callback(Output("choropleth_pollutant", "figure"), # choose how to display pollutants, user interaction (connects with previous choropleth_pollutant id)
               [Input("pollutant", "value")])
-#@cache.memoize(timeout=TIMEOUT)
+#@cache.memoize(timeout=TIMEOUT) ########always def function beneath callback
 def make_map_pollutant(pollutants):
     if pollutants == 'NO_totMean':
         #color_scale = "greys"
@@ -655,7 +656,7 @@ def make_map_pollutant(pollutants):
         #color_scale = "amp"
         labels = {'PM2_5_totMean': 'PM2.5'}
 
-    fig_pollutant = px.choropleth_mapbox(
+    fig_pollutant = px.choropleth_mapbox( ################# plotting function > put it into python script with class
         df,
         geojson=counties,
         locations='county_new',
@@ -676,7 +677,6 @@ def make_map_pollutant(pollutants):
     fig_pollutant.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0}, )
     return fig_pollutant
 
-
 ###covid
 @app.callback(Output("choropleth_covid", "figure"), [Input("covid", "value")])
 #@cache.memoize(timeout=TIMEOUT)
@@ -689,7 +689,7 @@ def make_map_covid(covids):
         color_scale = "amp"
         labels = {'deaths_per_100k': 'deaths per 100k'}
 
-    fig_covid = px.choropleth_mapbox(
+    fig_covid = px.choropleth_mapbox( ####### plotting function in python scipt - import function here
         df,
         geojson=counties,
         locations='county_new',
@@ -712,8 +712,8 @@ def make_map_covid(covids):
     return fig_covid
 
 
-@app.callback([
-    Output(component_id='graph_no2', component_property='figure'),
+@app.callback([                                                         ###user interaction: search for id to find what it is for
+    Output(component_id='graph_no2', component_property='figure'),      ### Callback is what is put in search field
     Output(component_id='graph_no', component_property='figure'),
     Output(component_id='graph_o3', component_property='figure'),
     Output(component_id='graph_pm10', component_property='figure'),
@@ -730,7 +730,7 @@ def update_graph(county_selected):
     template = 'plotly'
 
     # Graph for pollutant 1 (NO2)
-    graph_no2 = px.area(
+    graph_no2 = px.area(                                                        #### also into plotting script (anything with px)
         dff,
         x='year',
         y='NO2_annualMean',
@@ -861,11 +861,11 @@ def update_graph(county_selected):
                             linecolor='gray',
                             gridcolor='gray')
 
-    return [graph_no2, graph_no, graph_o3, graph_pm10, graph_pm25]
+    return [graph_no2, graph_no, graph_o3, graph_pm10, graph_pm25]                  ### use loop instead of repeating code
 
 
 # if __name__ == '__main__':
 #     app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8080, debug=True)
+    app.run_server(host='0.0.0.0', port=8070, debug=True)
