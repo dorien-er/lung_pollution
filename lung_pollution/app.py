@@ -18,6 +18,9 @@ import base64
 import requests
 import dash_extensions as de
 import time
+import viz
+
+viz = viz.Viz()
 
 ################################################################################
 
@@ -84,7 +87,6 @@ def load_data_google_bucket():
 
 df = load_data_google_bucket()
 
-
 @cache.memoize(timeout=TIMEOUT)
 def load_geojson():
     with urlopen(
@@ -98,17 +100,17 @@ counties = load_geojson()
 
 ############################### IMAGES, GLOBAL VARIABLES #######################
 
-image_filename = './lung_pollution/data/images/intro.png'  # replace with your own image
+image_filename = 'data/images/intro.png'  # replace with your own image
 encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
-image_filename_2 = './lung_pollution/data/images/under-the-hood.png'  # replace with your own image
+image_filename_2 = 'data/images/under-the-hood.png'  # replace with your own image
 encoded_image_2 = base64.b64encode(open(image_filename_2, 'rb').read())
 
-image_filename_3 = './lung_pollution/data/images/kde.png'  # replace with your own image
+image_filename_3 = 'data/images/kde.png'  # replace with your own image
 encoded_image_3 = base64.b64encode(open(image_filename_3, 'rb').read())
 
-image_filename_4 = './lung_pollution/data/images/gauge.png'  # replace with your own image
-encoded_image_4 = base64.b64encode(open(image_filename_4, 'rb').read())
+#image_filename_4 = 'data/images/gauge.png'  # replace with your own image
+#encoded_image_4 = base64.b64encode(open(image_filename_4, 'rb').read())
 
 # -------------------------- LOTTIE GIFs LOADING FUNCTIONS ---------------------------- #
 # Lotties: Emil at https://github.com/thedirtyfew/dash-extensions
@@ -581,8 +583,7 @@ def render_page_content(pathname):
     Input("input3", "value"),
     Input("input4", "value"),
     Input("input5", "value"),
-    Input("input6", "value"),
-)
+    Input("input6", "value"),)
 def number_render(PM2_5, O3, NO2, NO, density, vax):
     if NO == None or NO2 == None or O3 == None or PM2_5 == None or density == None or vax == None:
         time.sleep(10)
@@ -635,234 +636,34 @@ def number_render(PM2_5, O3, NO2, NO, density, vax):
     )
     return fig
 
-######pollutant
-@app.callback(Output("choropleth_pollutant", "figure"), # choose how to display pollutants, user interaction (connects with previous choropleth_pollutant id)
+####### pollution and covid visualizations
+###pollution map germany
+@app.callback(Output("choropleth_pollutant", "figure"),
               [Input("pollutant", "value")])
-#@cache.memoize(timeout=TIMEOUT) ########always def function beneath callback
+#@cache.memoize(timeout=TIMEOUT)
 def make_map_pollutant(pollutants):
-    if pollutants == 'NO_totMean':
-        #color_scale = "greys"
-        labels = {'NO_totMean': 'NO'}
-
-    elif pollutants == 'NO2_totMean':
-        #color_scale = "amp"
-        labels = {'NO2_totMean': 'NO2'}
-
-    elif pollutants == 'O3_totMean':
-        #color_scale = "amp"
-        labels = {'O3_totMean': 'O3'}
-
-    elif pollutants == 'PM2_5_totMean':
-        #color_scale = "amp"
-        labels = {'PM2_5_totMean': 'PM2.5'}
-
-    fig_pollutant = px.choropleth_mapbox( ################# plotting function > put it into python script with class
-        df,
-        geojson=counties,
-        locations='county_new',
-        featureidkey="properties.NAME_3",
-        color=pollutants,
-        color_continuous_scale="ylorrd",  #Emrld, ylorrd
-        color_continuous_midpoint=None,
-        #range_color=(0, np.max(df["cases_per_100k"])),
-        #animation_frame='year',
-        mapbox_style="white-bg",
-        zoom=4.5,
-        center={
-            "lat": 51.312801,
-            "lon": 9.481544
-        },
-        opacity=0.5,
-        labels=labels)
-    fig_pollutant.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0}, )
+    fig_pollutant = viz.pollutant_map(pollutants)
     return fig_pollutant
 
-###covid
+###covid map germany
 @app.callback(Output("choropleth_covid", "figure"), [Input("covid", "value")])
 #@cache.memoize(timeout=TIMEOUT)
 def make_map_covid(covids):
-
-    if covids == 'cases_per_100k':
-        color_scale = "greys"
-        labels = {'cases_per_100k': 'cases per 100k'}
-    elif covids == 'deaths_per_100k':
-        color_scale = "amp"
-        labels = {'deaths_per_100k': 'deaths per 100k'}
-
-    fig_covid = px.choropleth_mapbox( ####### plotting function in python scipt - import function here
-        df,
-        geojson=counties,
-        locations='county_new',
-        featureidkey="properties.NAME_3",
-        color=covids,
-        color_continuous_scale=color_scale,
-        color_continuous_midpoint=None,
-        #range_color=(0, np.max(df["cases_per_100k"])),
-        #animation_frame='year',
-        mapbox_style="white-bg",
-        zoom=4.5,
-        center={
-            "lat": 51.312801,
-            "lon": 9.481544
-        },
-        opacity=0.5,
-        labels=labels
-    )
-    fig_covid.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
+    fig_covid = viz.covid_map(covids)
     return fig_covid
 
-
-@app.callback([                                                         ###user interaction: search for id to find what it is for
-    Output(component_id='graph_no2', component_property='figure'),      ### Callback is what is put in search field
+###pollution per county
+@app.callback([
+    Output(component_id='graph_no2', component_property='figure'),
     Output(component_id='graph_no', component_property='figure'),
     Output(component_id='graph_o3', component_property='figure'),
     Output(component_id='graph_pm10', component_property='figure'),
     Output(component_id='graph_pm25', component_property='figure'),
 ], [Input(component_id='county-searchbox', component_property='value')])
 #@cache.memoize(timeout=TIMEOUT)
-def update_graph(county_selected):
-    #dff = df.copy()
-    dff = df[df["county_new"] == county_selected]
-
-    height = 280
-    width = 350
-
-    template = 'plotly'
-
-    # Graph for pollutant 1 (NO2)
-    graph_no2 = px.area(                                                        #### also into plotting script (anything with px)
-        dff,
-        x='year',
-        y='NO2_annualMean',
-        title='NO2 (annual mean) [µg/cm3]',
-        template=template,
-        height=height,
-        width=width,
-        line_shape='spline',
-        # range_y=[
-        #     df['NO2_annualMean'].min(),
-        #     1.1 * df['NO2_annualMean'].max()
-        # ]
-    ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    yaxis=dict(title=None, showgrid=True, showticklabels=True),
-                    xaxis=dict(title=None, showgrid=False,
-                               showticklabels=True))
-
-    graph_no2.update_yaxes(
-        showline=False,
-        linewidth=0.25,
-        matches=None,  #autoscale y axis
-        linecolor='gray',
-        gridcolor='gray')
-
-    # Graph for pollutant 2 (NO)
-    graph_no = px.area(
-        dff,
-        x='year',
-        y='NO_annualMean',
-        title='NO (annual mean) [µg/cm3]',
-        template=template,
-        height=height,
-        width=width,
-        line_shape='spline',
-        #    range_y=[
-        #        df['NO_annualMean'].min(),
-        #        1.1 * df['NO_annualMean'].max()
-        #    ]
-    ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    yaxis=dict(title=None, showgrid=True, showticklabels=True),
-                    xaxis=dict(title=None, showgrid=False,
-                               showticklabels=True))
-    graph_no.update_yaxes(showline=False,
-                          linewidth=0.25,
-                          matches=None,
-                          linecolor='gray',
-                          gridcolor='gray')
-
-    # Graph for pollutant 3 (O3)
-    graph_o3 = px.area(
-        dff,
-        x='year',
-        y='O3_annualMean',
-        title='O3 (annual mean) [µg/cm3]',
-        template=template,
-        height=height,
-        width=width,
-        line_shape='spline',
-        #    range_y=[
-        #        df['O3_annualMean'].min(),
-        #        1.1 * df['O3_annualMean'].max()
-        #    ]
-    ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    yaxis=dict(title=None, showgrid=True, showticklabels=True),
-                    xaxis=dict(title=None, showgrid=False,
-                               showticklabels=True))
-    graph_o3.update_yaxes(showline=False,
-                          linewidth=0.25,
-                          matches=None,
-                          linecolor='gray',
-                          gridcolor='gray')
-
-    # Graph for pollutant 4 (PM10)
-    graph_pm10 = px.area(
-        dff,
-        x='year',
-        y='PM10_annualMean',
-        title='PM10 (annual mean) [µg/cm3]',
-        template=template,
-        height=height,
-        width=width,
-        line_shape='spline',
-        #  range_y=[
-        #      df['PM10_annualMean'].min(),
-        #      1.1 * df['PM10_annualMean'].max()
-        #  ]
-    ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    yaxis=dict(title=None, showgrid=True, showticklabels=True),
-                    xaxis=dict(title=None, showgrid=False,
-                               showticklabels=True))
-    graph_pm10.update_yaxes(showline=False,
-                            linewidth=0.25,
-                            matches=None,
-                            linecolor='gray',
-                            gridcolor='gray')
-
-    # Graph for pollutant 5 (PM2.5)
-    graph_pm25 = px.area(
-        dff,
-        x='year',
-        y='PM2_5_annualMean',
-        title='PM2.5 (annual mean) [µg/cm3]',
-        template=template,
-        height=height,
-        width=width,
-        line_shape='spline',
-        #  range_y=[
-        #      df['PM2_5_annualMean'].min(),
-        #      1.1 * df['PM2_5_annualMean'].max()
-        #  ]
-    ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
-                    paper_bgcolor='rgba(0,0,0,0)',
-                    plot_bgcolor='rgba(0,0,0,0)',
-                    yaxis=dict(title=None, showgrid=True, showticklabels=True),
-                    xaxis=dict(title=None, showgrid=False,
-                               showticklabels=True))
-    graph_pm25.update_yaxes(showline=False,
-                            linewidth=0.25,
-                            matches=None,
-                            linecolor='gray',
-                            gridcolor='gray')
-
-    return [graph_no2, graph_no, graph_o3, graph_pm10, graph_pm25]                  ### use loop instead of repeating code
-
+def county_pollutant(county_selected):
+    pollutant_county_fig = viz.update_graph(county_selected)
+    return pollutant_county_fig
 
 # if __name__ == '__main__':
 #     app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=False)

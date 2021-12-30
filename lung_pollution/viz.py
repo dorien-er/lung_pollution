@@ -1,30 +1,49 @@
-import plotly.graph_objects as go  # or plotly.express as px
-import dash
-#import dash_core_components as dcc
-from dash import dcc
-import dash_bootstrap_components as dbc
-from dash import html
-#import dash_html_components as html
 import pandas as pd
 import json
 import plotly.express as px
-import numpy as np
 from urllib.request import urlopen
-from dash.dependencies import Output, Input
-from flask_caching import Cache
-#import os
-import base64
-#from google.cloud import storage
-import requests
-import dash_extensions as de
-import time
+
+############################### DATASETS #######################################
+
+def load_data_google_bucket():
+    """method to get the training data (or a portion of it) from google cloud bucket"""
+    ### GCP Storage - - - - - - - - - - - - - - - - - - - - - -
+    BUCKET_NAME = 'lungpollution-2021-predictonline'
+    ##### Data  - - - - - - - - - - - - - - - - - - - - - - - -
+    BUCKET_TRAIN_DATA_PATH = 'data/covid_pollution_complete.csv'
+
+    df = pd.read_csv(
+        f"gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}")  #nrows=1000)
+    return df
+
+
+df = load_data_google_bucket()
+
+def load_geojson():
+    with urlopen(
+            'https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/4_niedrig.geo.json'
+    ) as response:
+        counties = json.load(response)
+    return counties
+
+counties = load_geojson()
+
 
 class Viz():
 
     def __init__(self):
         pass
 
-    def make_map_pollutant(pollutants):
+    def load_geojson(self):
+        with urlopen(
+                'https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/4_niedrig.geo.json'
+        ) as response:
+            counties = json.load(response)
+        return counties
+
+
+
+    def pollutant_map(self, pollutants):
         if pollutants == 'NO_totMean':
             #color_scale = "greys"
             labels = {'NO_totMean': 'NO'}
@@ -41,7 +60,7 @@ class Viz():
             #color_scale = "amp"
             labels = {'PM2_5_totMean': 'PM2.5'}
 
-        fig_pollutant = px.choropleth_mapbox(  ################# plotting function > put it into python script with class
+        fig_pollutant = px.choropleth_mapbox(
             df,
             geojson=counties,
             locations='county_new',
@@ -62,15 +81,14 @@ class Viz():
         fig_pollutant.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0}, )
         return fig_pollutant
 
-    def make_map_covid(covids):
+    def covid_map(self, covids):
         if covids == 'cases_per_100k':
             color_scale = "greys"
             labels = {'cases_per_100k': 'cases per 100k'}
         elif covids == 'deaths_per_100k':
             color_scale = "amp"
             labels = {'deaths_per_100k': 'deaths per 100k'}
-
-        fig_covid = px.choropleth_mapbox( ####### plotting function in python scipt - import function here
+        fig_covid = px.choropleth_mapbox(
             df,
             geojson=counties,
             locations='county_new',
@@ -92,9 +110,7 @@ class Viz():
         fig_covid.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0})
         return fig_covid
 
-
-    def update_graph(county_selected):
-        #dff = df.copy()
+    def update_graph(self, county_selected):
         dff = df[df["county_new"] == county_selected]
 
         height = 280
