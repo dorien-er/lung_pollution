@@ -1,47 +1,10 @@
-import pandas as pd
-import json
 import plotly.express as px
-from urllib.request import urlopen
-
-############################### DATASETS #######################################
-
-def load_data_google_bucket():
-    """method to get the training data (or a portion of it) from google cloud bucket"""
-    ### GCP Storage - - - - - - - - - - - - - - - - - - - - - -
-    BUCKET_NAME = 'lungpollution-2021-predictonline'
-    ##### Data  - - - - - - - - - - - - - - - - - - - - - - - -
-    BUCKET_TRAIN_DATA_PATH = 'data/covid_pollution_complete.csv'
-
-    df = pd.read_csv(
-        f"gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}")  #nrows=1000)
-    return df
-
-
-df = load_data_google_bucket()
-
-def load_geojson():
-    with urlopen(
-            'https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/4_niedrig.geo.json'
-    ) as response:
-        counties = json.load(response)
-    return counties
-
-counties = load_geojson()
-
 
 class Viz():
 
-    def __init__(self):
-        pass
-
-    def load_geojson(self):
-        with urlopen(
-                'https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/main/4_kreise/4_niedrig.geo.json'
-        ) as response:
-            counties = json.load(response)
-        return counties
-
-
+    def __init__(self, df, counties):
+        self.df = df
+        self.counties = counties
 
     def pollutant_map(self, pollutants):
         if pollutants == 'NO_totMean':
@@ -61,15 +24,13 @@ class Viz():
             labels = {'PM2_5_totMean': 'PM2.5'}
 
         fig_pollutant = px.choropleth_mapbox(
-            df,
-            geojson=counties,
+            self.df,
+            geojson=self.counties,
             locations='county_new',
             featureidkey="properties.NAME_3",
             color=pollutants,
-            color_continuous_scale="ylorrd",  #Emrld, ylorrd
+            color_continuous_scale="ylorrd",
             color_continuous_midpoint=None,
-            #range_color=(0, np.max(df["cases_per_100k"])),
-            #animation_frame='year',
             mapbox_style="white-bg",
             zoom=4.5,
             center={
@@ -89,15 +50,13 @@ class Viz():
             color_scale = "amp"
             labels = {'deaths_per_100k': 'deaths per 100k'}
         fig_covid = px.choropleth_mapbox(
-            df,
-            geojson=counties,
+            self.df,
+            geojson=self.counties,
             locations='county_new',
             featureidkey="properties.NAME_3",
             color=covids,
             color_continuous_scale=color_scale,
             color_continuous_midpoint=None,
-            #range_color=(0, np.max(df["cases_per_100k"])),
-            #animation_frame='year',
             mapbox_style="white-bg",
             zoom=4.5,
             center={
@@ -111,7 +70,7 @@ class Viz():
         return fig_covid
 
     def update_graph(self, county_selected):
-        dff = df[df["county_new"] == county_selected]
+        dff = self.df[self.df["county_new"] == county_selected]
 
         height = 280
         width = 350
@@ -128,10 +87,6 @@ class Viz():
             height=height,
             width=width,
             line_shape='spline',
-            # range_y=[
-            #     df['NO2_annualMean'].min(),
-            #     1.1 * df['NO2_annualMean'].max()
-            # ]
         ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)',
@@ -156,10 +111,6 @@ class Viz():
             height=height,
             width=width,
             line_shape='spline',
-            #    range_y=[
-            #        df['NO_annualMean'].min(),
-            #        1.1 * df['NO_annualMean'].max()
-            #    ]
         ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)',
@@ -182,10 +133,6 @@ class Viz():
             height=height,
             width=width,
             line_shape='spline',
-            #    range_y=[
-            #        df['O3_annualMean'].min(),
-            #        1.1 * df['O3_annualMean'].max()
-            #    ]
         ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)',
@@ -208,10 +155,6 @@ class Viz():
             height=height,
             width=width,
             line_shape='spline',
-            #  range_y=[
-            #      df['PM10_annualMean'].min(),
-            #      1.1 * df['PM10_annualMean'].max()
-            #  ]
         ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)',
@@ -234,10 +177,6 @@ class Viz():
             height=height,
             width=width,
             line_shape='spline',
-            #  range_y=[
-            #      df['PM2_5_annualMean'].min(),
-            #      1.1 * df['PM2_5_annualMean'].max()
-            #  ]
         ).update_layout(margin=dict(t=50, r=0, l=0, b=50),
                         paper_bgcolor='rgba(0,0,0,0)',
                         plot_bgcolor='rgba(0,0,0,0)',

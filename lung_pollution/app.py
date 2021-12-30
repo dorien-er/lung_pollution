@@ -1,4 +1,4 @@
-import plotly.graph_objects as go  # or plotly.express as px
+import plotly.graph_objects as go
 import dash
 #import dash_core_components as dcc
 from dash import dcc
@@ -6,9 +6,8 @@ import dash_bootstrap_components as dbc
 from dash import html
 #import dash_html_components as html
 import pandas as pd
-import json
 import plotly.express as px
-import numpy as np
+import json
 from urllib.request import urlopen
 from dash.dependencies import Output, Input
 from flask_caching import Cache
@@ -20,7 +19,6 @@ import dash_extensions as de
 import time
 import viz
 
-viz = viz.Viz()
 
 ################################################################################
 
@@ -49,22 +47,6 @@ app.config.suppress_callback_exceptions = True
 
 ############################### DATASETS #######################################
 
-
-@cache.memoize(timeout=TIMEOUT)
-def load_data():
-    df = pd.read_csv("./lung_pollution/data/covid_pollution_complete.csv")
-    # df = df[[
-    #     'county_new', 'year', 'NO2_annualMean', 'NO_annualMean',
-    #     'O3_annualMean', 'PM10_annualMean', 'PM2_5_annualMean',
-    #     'cases_per_100k', 'deaths_per_100k', 'fully_vaccinated',
-    #     'Population_density'
-    # ]]
-    return df
-
-
-#df = load_data()
-
-
 @cache.memoize(timeout=TIMEOUT)
 def load_data_google_bucket():
     """method to get the training data (or a portion of it) from google cloud bucket"""
@@ -74,18 +56,8 @@ def load_data_google_bucket():
     BUCKET_TRAIN_DATA_PATH = 'data/covid_pollution_complete.csv'
 
     df = pd.read_csv(
-        f"gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}",  #nrows=1000
-    )
-    # df = df[[
-    #     'county_new', 'year', 'NO2_annualMean', 'NO_annualMean',
-    #     'O3_annualMean', 'PM10_annualMean', 'PM2_5_annualMean',
-    #     'cases_per_100k', 'deaths_per_100k', 'fully_vaccinated',
-    #     'Population_density'
-    # ]]
+        f"gs://{BUCKET_NAME}/{BUCKET_TRAIN_DATA_PATH}")
     return df
-
-
-df = load_data_google_bucket()
 
 @cache.memoize(timeout=TIMEOUT)
 def load_geojson():
@@ -96,21 +68,22 @@ def load_geojson():
     return counties
 
 
+df = load_data_google_bucket()
 counties = load_geojson()
+
+viz = viz.Viz(df,counties)
 
 ############################### IMAGES, GLOBAL VARIABLES #######################
 
-image_filename = 'data/images/intro.png'  # replace with your own image
+image_filename = 'data/images/intro.png'
 encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
-image_filename_2 = 'data/images/under-the-hood.png'  # replace with your own image
+image_filename_2 = 'data/images/under-the-hood.png'
 encoded_image_2 = base64.b64encode(open(image_filename_2, 'rb').read())
 
-image_filename_3 = 'data/images/kde.png'  # replace with your own image
+image_filename_3 = 'data/images/kde.png'
 encoded_image_3 = base64.b64encode(open(image_filename_3, 'rb').read())
 
-#image_filename_4 = 'data/images/gauge.png'  # replace with your own image
-#encoded_image_4 = base64.b64encode(open(image_filename_4, 'rb').read())
 
 # -------------------------- LOTTIE GIFs LOADING FUNCTIONS ---------------------------- #
 # Lotties: Emil at https://github.com/thedirtyfew/dash-extensions
@@ -126,13 +99,6 @@ options_lottie = dict(loop=True,
                autoplay=True,
                rendererSettings=dict(preserveAspectRatio='xMidYMid slice'))
 
-# pollutants = [
-#     'NO_annualMean', 'NO2_annualMean', 'O3_annualMean', 'PM2_5_annualMean'
-# ]
-# covids = ['cases_per_100k', 'deaths_per_100k']
-
-#token = open('./lung_pollution/data/.mapbox_token').read()
-
 ################################ SIDEBAR SETTING ###############################
 
 # styling the sidebar
@@ -143,7 +109,7 @@ SIDEBAR_STYLE = {
     "bottom": 0,
     "width": "16rem",
     "padding": "2rem 1rem",
-    "background-color": "#D9F6FC",  #BFEAF2
+    "background-color": "#D9F6FC",
 }
 
 # padding for the page content
@@ -172,21 +138,6 @@ sidebar = html.Div(
             vertical=False,
             pills=True,
         ),
-        # dbc.Nav(
-        #     [
-        #         html.Hr(),
-        #         html.P("Who are we?", className="lead"),
-        #         dbc.NavLink("Sara Iside Broggini", url="https://www.linkedin.com/in/sara-iside-broggini/", active="exact"),
-        #         dbc.NavLink("Ana Luiza Curi Christianini",
-        #                     href="/page-1",
-        #                     active="exact"),
-        #         dbc.NavLink("Rifqi Farhan", href="/page-2", active="exact"),
-        #         dbc.NavLink(
-        #             "Dorien Roosen", href="/page-3", active="exact"),
-        #     ],
-        #     vertical=False,
-        #     pills=True,
-        # ),
         html.Hr(),
         html.P("Who are we?", className="lead"),
         #html.P("Sara Iside Broggini", className="lead-1"),
@@ -226,9 +177,6 @@ sidebar = html.Div(
                    "color": "black",
                    "text-decoration": "none"
                }),
-        #html.P("Ana Luiza Curi Christianini", className="lead-1"),
-        #html.P("Rifqi Farhan", className="lead-1"),
-        #html.P("Dorien Roosen", className="lead-1"),
         de.Lottie(options=options_lottie, width="80%", height="80%", url=url5),
     ],
     style=SIDEBAR_STYLE,
@@ -355,16 +303,10 @@ def render_page_content(pathname):
                         dbc.Col(html.Div(dcc.Graph(id='graph_no2')), width=4),
                         dbc.Col(html.Div(dcc.Graph(id='graph_no')), width=4),
                         dbc.Col(html.Div(dcc.Graph(id='graph_o3')), width=4),
-                        #dbc.Col(html.Div(dcc.Graph(figure=graph_pm10)), width=2),
-                        #dbc.Col(html.Div(dcc.Graph(figure=graph_pm25)), width=2),
                     ]),
                     dbc.Row([
                         dbc.Col(html.Div(dcc.Graph(id='graph_pm10')), width=4),
                         dbc.Col(html.Div(dcc.Graph(id='graph_pm25')), width=4),
-                        #dbc.Col([], width=3),
-                        #dbc.Col(html.Div(dcc.Graph(id='graph_o3')), width=4),
-                        #dbc.Col(html.Div(dcc.Graph(figure=graph_pm10)), width=2),
-                        #dbc.Col(html.Div(dcc.Graph(figure=graph_pm10)), width=2),
                     ]),
                 ],
                 fluid=True)
@@ -636,18 +578,17 @@ def number_render(PM2_5, O3, NO2, NO, density, vax):
     )
     return fig
 
-####### pollution and covid visualizations
+####### pollution and covid visualizations (import from viz.py)
+
 ###pollution map germany
 @app.callback(Output("choropleth_pollutant", "figure"),
               [Input("pollutant", "value")])
-#@cache.memoize(timeout=TIMEOUT)
 def make_map_pollutant(pollutants):
     fig_pollutant = viz.pollutant_map(pollutants)
     return fig_pollutant
 
 ###covid map germany
 @app.callback(Output("choropleth_covid", "figure"), [Input("covid", "value")])
-#@cache.memoize(timeout=TIMEOUT)
 def make_map_covid(covids):
     fig_covid = viz.covid_map(covids)
     return fig_covid
@@ -660,13 +601,9 @@ def make_map_covid(covids):
     Output(component_id='graph_pm10', component_property='figure'),
     Output(component_id='graph_pm25', component_property='figure'),
 ], [Input(component_id='county-searchbox', component_property='value')])
-#@cache.memoize(timeout=TIMEOUT)
 def county_pollutant(county_selected):
     pollutant_county_fig = viz.update_graph(county_selected)
     return pollutant_county_fig
-
-# if __name__ == '__main__':
-#     app.run_server(host='0.0.0.0', port=8080, debug=True, use_reloader=False)
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', port=8070, debug=True)
