@@ -35,9 +35,9 @@ def predict(NO,
                                vax = [float(vax)],
                                density = [float(density)]))
 
-    scaler = joblib.load('scaler.joblib')
+    scaler = joblib.load('../lung_pollution/scaler.joblib')
     X_test = scaler.transform(X_test)
-    model = joblib.load('model.joblib')
+    model = joblib.load('../lung_pollution/model.joblib')
     results = model.predict(X_test)
     pred = float(results[0])
     return dict(prediction=pred)
