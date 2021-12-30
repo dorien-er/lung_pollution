@@ -8,43 +8,11 @@ import joblib
 
 ### GCP configuration - - - - - - - - - - - - - - - - - - -
 
-# /!\ you should fill these according to your account
-
-### GCP Project - - - - - - - - - - - - - - - - - - - - - -
-
-# not required here
-
-### GCP Storage - - - - - - - - - - - - - - - - - - - - - -
-
 BUCKET_NAME = 'lungpollution-2021-predictonline'
-
-##### Data  - - - - - - - - - - - - - - - - - - - - - - - -
-
-# train data file location
-# /!\ here you need to decide if you are going to train using the provided and uploaded data/train_1k.csv sample file
-# or if you want to use the full dataset (you need need to upload it first of course)
 BUCKET_TRAIN_DATA_PATH = 'data/AP_Covid_Average.csv'
-
-##### Training  - - - - - - - - - - - - - - - - - - - - - -
-
-# not required here
-
-##### Model - - - - - - - - - - - - - - - - - - - - - - - -
-
-# model folder name (will contain the folders for all trained model versions)
 MODEL_NAME = 'LungPollutionRandomForest'
-
-# model version folder name (where the trained model.joblib file will be stored)
 MODEL_VERSION = 'v3'
-
-### GCP AI Platform - - - - - - - - - - - - - - - - - - - -
-
-# not required here
-
-### - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 EXPERIMENT_NAME = "final_experiment"
-
 STORAGE_LOCATION = 'models/lungpollution/model.joblib'
 
 class Trainer():
@@ -67,10 +35,9 @@ class Trainer():
         return self.X, self.y
 
     def standard_scale(self, X_obj):
-        scaler = StandardScaler()
-        scaler.fit(X_obj)  # Fit scaler to feature
-        X_obj = scaler.transform(X_obj)  #Scale
-        return X_obj
+        """method that scales the data"""
+        scaler = StandardScaler().fit(X_obj)
+        return scaler
 
     def train_model(self, X_obj, y_obj):
         """method that trains the model"""
@@ -82,39 +49,60 @@ class Trainer():
         return rfg
 
     def upload_model_to_gcp(self):
-
+        """method that uploads the model to gcp"""
         client = storage.Client()
-
         bucket = client.bucket(BUCKET_NAME)
-
         blob = bucket.blob(STORAGE_LOCATION)
-
         blob.upload_from_filename('model.joblib')
 
+    def upload_scaler_to_gcp(self):
+        """method that uploads the scaler to gcp"""
+
+        client = storage.Client()
+        bucket = client.bucket(BUCKET_NAME)
+        blob = bucket.blob(STORAGE_LOCATION)
+        blob.upload_from_filename('scaler.joblib')
+
     def save_model(self, reg):
-        """method that saves the model into a .joblib file and uploads it on Google Storage /models folder
-        HINTS : use joblib library and google-cloud-storage"""
+        """method that saves the model into a .joblib file and uploads it on Google Storage /models folder"""
 
         # saving the trained model to disk is mandatory to then beeing able to upload it to storage
-        # Implement here
         joblib.dump(reg, 'model.joblib')
         print("saved model.joblib locally")
-
-        # Implement here
+        # upload to gcp
         trainer.upload_model_to_gcp()
         print(
             f"uploaded model.joblib to gcp cloud storage under \n => {STORAGE_LOCATION}"
         )
 
+    def save_scaler(self, scaler):
+        """method that saves the scaler into a .joblib file and uploads it on Google Storage /models folder"""
+
+        # saving the scaler to disk is mandatory to then beeing able to upload it to storage
+        joblib.dump(scaler, 'scaler.joblib')
+        print("saved scaler.joblib locally")
+        # upload to gcp
+        trainer.upload_scaler_to_gcp()
+        print(
+            f"uploaded scaler.joblib to gcp cloud storage under \n => {STORAGE_LOCATION}"
+        )
+
+
 if __name__ == '__main__':
     # get training data from GCP bucket
     trainer = Trainer()
     X_train, y_train = trainer.get_data()
-    X_train = trainer.standard_scale(X_train)
 
-    # train model (locally if this file was called through the run_locally command
-    # or on GCP if it was called through the gcp_submit_training, in which case
-    # this package is uploaded to GCP before being executed)
+    # fit scaler to the training data
+    scaler = trainer.standard_scale(X_train)
+
+    # save the fitted scaler to GCP bucket
+    trainer.save_scaler(scaler)
+
+    # transform training data with fitted scaler
+    X_train = scaler.transform(X_train)
+
+    # train model
     reg = trainer.train_model(X_train, y_train)
 
     # save trained model to GCP bucket (whether the training occured locally or on GCP)
