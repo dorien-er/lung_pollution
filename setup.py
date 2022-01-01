@@ -7,7 +7,7 @@ requirements = [x.strip() for x in content if 'git+' not in x]
 
 setup(name='lung_pollution',
       version="1.0",
-      description="Project Description",
+      description="AI/ML web app to assess the impact of air pollution on CoViD-19 in Germany, including a live predictor.",
       packages=find_packages(),
       install_requires=requirements,
       test_suite='tests',

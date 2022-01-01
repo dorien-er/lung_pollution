@@ -17,7 +17,7 @@ import base64
 import requests
 import dash_extensions as de
 import time
-import viz
+from viz import Viz
 
 
 ################################################################################
@@ -71,7 +71,7 @@ def load_geojson():
 df = load_data_google_bucket()
 counties = load_geojson()
 
-viz = viz.Viz(df,counties)
+viz = Viz(df,counties)
 
 ############################### IMAGES, GLOBAL VARIABLES #######################
 
@@ -604,6 +604,9 @@ def make_map_covid(covids):
 def county_pollutant(county_selected):
     pollutant_county_fig = viz.update_graph(county_selected)
     return pollutant_county_fig
+
+def test():
+    print('test')
 
 if __name__ == '__main__':
     app.run_server(host='0.0.0.0', port=8070, debug=True)
