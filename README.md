@@ -35,9 +35,13 @@ deactivate; virtualenv ~/venv ; source ~/venv/bin/activate ;\
     pip install pip -U; pip install -r requirements.txt
 ```
 
-Unittest test:
+Functional test with lung-pollution script:
+
 ```bash
-make clean install test
+cd
+mkdir tmp
+cd tmp
+lung_pollution-run
 ```
 
 Check for lung_pollution in gitlab.com/{group}.
@@ -51,15 +55,6 @@ If your project is not set please add it:
 git remote add origin git@github.com:{group}/lung_pollution.git
 git push -u origin master
 git push -u origin --tags
-```
-
-Functionnal test with a script:
-
-```bash
-cd
-mkdir tmp
-cd tmp
-lung_pollution-run
 ```
 
 ## Install
@@ -80,9 +75,9 @@ Clone the project and install it:
 git clone git@github.com:{group}/lung_pollution.git
 cd lung_pollution
 pip install -r requirements.txt
-make clean install test                # install and test
+make clean install                  # install 
 ```
-Functionnal test with a script:
+Functional test with lung-pollution script:
 
 ```bash
 cd
