@@ -27,22 +27,31 @@ Check out our website: [lung-pollution](https://lung-pollution.xyz/)
 
 ## Install
 
-Clone the project (replace <project_name> with folder name of choice):
+Clone the project:
 
 ```bash
-mkdir <project_name> && cd "$_"
+mkdir lung_pollution && cd "$_"
 git clone git@github.com:dorien-er/lung_pollution.git
 ```
+  
+Create a new virtual environment:
+  
+```bash
+pyenv virtualenv lung_pollution
+pyenv local lung_pollution
+```
+  
 Install the project:
   
 ```bash
-pip install -e lung_pollution
+cd lung_pollution
+pip install -e .
 ```
   
 Functionality test to run web app on local host:
   
 ```bash
-cd lung_pollution/lung_pollution
+cd lung_pollution
 lung_pollution-run
 ```
   
