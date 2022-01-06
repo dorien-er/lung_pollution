@@ -608,4 +608,4 @@ def county_pollutant(county_selected):
     pollutant_county_fig = viz.update_graph(county_selected)
     return pollutant_county_fig
 
-app.run_server(host='0.0.0.0', port=8070, debug=True)
+app.run_server(host='0.0.0.0', port=8080, debug=True)
