@@ -24,64 +24,25 @@ Check out our website: [lung-pollution](https://lung-pollution.xyz/)
 
 * Type of analysis: machine learning using SciKit-Learn, RandomForestRegressor
 
-## Startup the project
-
-The initial setup.
-
-Create virtualenv and install the project:
-```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv ~/venv ; source ~/venv/bin/activate ;\
-    pip install pip -U; pip install -r requirements.txt
-```
-
-Functional test with lung-pollution script:
-
-```bash
-cd
-mkdir tmp
-cd tmp
-lung_pollution-run
-```
-
-Check for lung_pollution in gitlab.com/{group}.
-If your project is not set please add it:
-
-- Create a new project on `gitlab.com/{group}/lung_pollution`
-- Then populate it:
-
-```bash
-##   e.g. if group is "{group}" and project_name is "lung_pollution"
-git remote add origin git@github.com:{group}/lung_pollution.git
-git push -u origin master
-git push -u origin --tags
-```
 
 ## Install
 
-Go to `https://github.com/{group}/lung_pollution` to see the project, manage issues,
-setup you ssh public key, ...
-
-Create a python3 virtualenv and activate it:
+Clone the project (replace <project_name> with folder name of choice):
 
 ```bash
-sudo apt-get install virtualenv python-pip python-dev
-deactivate; virtualenv -ppython3 ~/venv ; source ~/venv/bin/activate
+mkdir <project_name> && cd "$_"
+git clone git@github.com:dorien-er/lung_pollution.git
 ```
-
-Clone the project and install it:
-
+Install the project:
+  
 ```bash
-git clone git@github.com:{group}/lung_pollution.git
-cd lung_pollution
-pip install -r requirements.txt
-make clean install                  # install 
+pip install -e lung_pollution
 ```
-Functional test with lung-pollution script:
-
+  
+Functionality test to run web app on local host:
+  
 ```bash
-cd
-mkdir tmp
-cd tmp
+cd lung_pollution/lung_pollution
 lung_pollution-run
 ```
+  
