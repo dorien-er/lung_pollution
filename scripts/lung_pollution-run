@@ -78,13 +78,13 @@ viz = Viz(df,counties)
 
 ############################### IMAGES, GLOBAL VARIABLES #######################
 
-image_filename = 'data/images/intro.png'
+image_filename = '../lung_pollution/lung_pollution/data/images/intro.png'
 encoded_image = base64.b64encode(open(image_filename, 'rb').read())
 
-image_filename_2 = 'data/images/under-the-hood.png'
+image_filename_2 = '../lung_pollution/lung_pollution/data/images/under-the-hood.png'
 encoded_image_2 = base64.b64encode(open(image_filename_2, 'rb').read())
 
-image_filename_3 = 'data/images/kde.png'
+image_filename_3 = '../lung_pollution/lung_pollution/data/images/kde.png'
 encoded_image_3 = base64.b64encode(open(image_filename_3, 'rb').read())
 
 
