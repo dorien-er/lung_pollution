@@ -9,7 +9,7 @@ AI/ML project to analyze of the impact of air pollution, vaccination rate and po
 * [Install](#install)
 
 ## About
-In this project, we build an interactive web app to visualize and analyze the impact of air pollution on CoViD-19 cases in Germany. We also analyze the impact of additional disease modulators, such as vaccination rate and population density, on CoViD-19 cases in German counties. 
+In this project, we build an interactive web app to visualize and analyze the impact of air pollution on CoViD-19 cases in Germany. We also analyze the impact of additional disease modulators, such as vaccination rate and population density, on CoViD-19 cases in German counties.
 
 ## The website
 Check out our website: [lung-pollution](https://lung-pollution.xyz/)
@@ -33,25 +33,22 @@ Clone the project:
 mkdir lung_pollution && cd "$_"
 git clone git@github.com:dorien-er/lung_pollution.git
 ```
-  
-Create a new virtual environment:
-  
+
+Create a new virtual environment (opt.):
+
 ```bash
 pyenv virtualenv lung_pollution
 pyenv local lung_pollution
 ```
-  
+
 Install the project:
-  
+
 ```bash
-cd lung_pollution
-pip install -e .
+cd lung_pollution; pip install -e .
 ```
-  
+
 Functionality test to run web app on local host:
-  
+
 ```bash
-cd lung_pollution
 lung_pollution-run
 ```
-  
