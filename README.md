@@ -30,21 +30,23 @@ Check out our website: [lung-pollution](https://lung-pollution.xyz/)
 Clone the project:
 
 ```bash
-mkdir lung_pollution && cd "$_"
-git clone git@github.com:dorien-er/lung_pollution.git
+mkdir lung_pollution && cd "$_";
+git clone git@github.com:dorien-er/lung_pollution.git;
+cd lung_pollution
+  
 ```
 
 Create a new virtual environment (opt.):
 
 ```bash
-pyenv virtualenv lung_pollution
+pyenv virtualenv lung_pollution;
 pyenv local lung_pollution
 ```
 
 Install the project:
 
 ```bash
-cd lung_pollution; pip install -e .
+pip install -e .
 ```
 
 Functionality test to run web app on local host:
