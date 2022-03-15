@@ -177,7 +177,7 @@ sidebar = html.Div(
                    "color": "black",
                    "text-decoration": "none"
                }),
-        de.Lottie(options=options_lottie, width="80%", height="80%", url=url5),
+    #    de.Lottie(options=options_lottie, width="80%", height="80%", url=url5),
     ],
     style=SIDEBAR_STYLE,
 )
